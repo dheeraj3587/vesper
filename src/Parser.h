@@ -12,8 +12,9 @@ private:
     std::vector<std::string> Tokens;
     size_t CurrentPos;
 
-    // Helper functions
+    // Helper functions to advance the token stream and parse specific grammar rules.
     int getNextToken();
+    int GetTokPrecedence();
     std::unique_ptr<ExprAST> ParseNumberExpr();
     std::unique_ptr<ExprAST> ParseParenExpr();
     std::unique_ptr<ExprAST> ParseIdentifierExpr();
@@ -27,7 +28,8 @@ private:
 
 public:
     Parser(const std::vector<std::string>& tokens);
+    // Main entry point for parsing.
     std::unique_ptr<ExprAST> Parse();
 };
 
-#endif // PARSER_H 
+#endif 

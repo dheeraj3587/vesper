@@ -5,13 +5,13 @@
 #include <string>
 #include <vector>
 
-// Base class for all expression nodes
+// Base class for all expression nodes.
 class ExprAST {
 public:
     virtual ~ExprAST() = default;
 };
 
-// Expression class for numeric literals like "1.0"
+// Expression class for numeric literals like "1.0".
 class NumberExprAST : public ExprAST {
     double Val;
 
@@ -19,7 +19,7 @@ public:
     NumberExprAST(double Val) : Val(Val) {}
 };
 
-// Expression class for referencing a variable, like "a"
+// Expression class for referencing a variable, like "a".
 class VariableExprAST : public ExprAST {
     std::string Name;
 
@@ -27,7 +27,7 @@ public:
     VariableExprAST(const std::string &Name) : Name(Name) {}
 };
 
-// Expression class for a binary operator
+// Expression class for a binary operator.
 class BinaryExprAST : public ExprAST {
     char Op;
     std::unique_ptr<ExprAST> LHS, RHS;
@@ -38,7 +38,7 @@ public:
         : Op(op), LHS(std::move(LHS)), RHS(std::move(RHS)) {}
 };
 
-// Expression class for function calls
+// Expression class for function calls.
 class CallExprAST : public ExprAST {
     std::string Callee;
     std::vector<std::unique_ptr<ExprAST>> Args;
@@ -50,8 +50,9 @@ public:
 };
 
 // This class represents the "prototype" for a function,
-// which captures its name, and its argument names
-class PrototypeAST {
+// which captures its name, and its argument names (thus implicitly its arity).
+// It's also used for argument names when defining a function.
+class PrototypeAST : public ExprAST {
     std::string Name;
     std::vector<std::string> Args;
 
@@ -60,8 +61,8 @@ public:
         : Name(name), Args(std::move(Args)) {}
 };
 
-// This class represents a function definition itself
-class FunctionAST {
+// This class represents a function definition itself.
+class FunctionAST : public ExprAST {
     std::unique_ptr<PrototypeAST> Proto;
     std::unique_ptr<ExprAST> Body;
 
