@@ -4,9 +4,10 @@
 #include <string>
 #include <vector>
 
-class Lexer {
+class Lexer
+{
 public:
-    Lexer(const std::string& source);
+    Lexer(const std::string &source);
     std::vector<std::string> tokenize();
 
 private:
@@ -21,4 +22,4 @@ private:
     std::string getNumber();
 };
 
-#endif // LEXER_H 
+#endif // LEXER_H

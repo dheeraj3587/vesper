@@ -6,30 +6,55 @@
 #include <vector>
 #include "AST.h"
 
-class Parser {
+using namespace std;
+
+// Token enum
+enum Token
+{
+    tok_eof = -1,
+    tok_def = -2,
+    tok_extern = -3,
+    tok_identifier = -4,
+    tok_number = -5,
+    tok_if = -6,
+    tok_then = -7,
+    tok_else = -8,
+    tok_for = -9,
+    tok_in = -10,
+    tok_binary = -11,
+    tok_unary = -12,
+    tok_var = -13
+};
+
+class Parser
+{
 private:
     int CurrentToken;
-    std::vector<std::string> Tokens;
+    vector<string> Tokens;
     size_t CurrentPos;
+
+    // Token semantic values
+    string IdentifierStr; // Holds the identifier name if the current token is tok_identifier
+    double NumVal;        // Holds the number value if the current token is tok_number
 
     // Helper functions to advance the token stream and parse specific grammar rules.
     int getNextToken();
     int GetTokPrecedence();
-    std::unique_ptr<ExprAST> ParseNumberExpr();
-    std::unique_ptr<ExprAST> ParseParenExpr();
-    std::unique_ptr<ExprAST> ParseIdentifierExpr();
-    std::unique_ptr<ExprAST> ParsePrimary();
-    std::unique_ptr<ExprAST> ParseBinOpRHS(int ExprPrec, std::unique_ptr<ExprAST> LHS);
-    std::unique_ptr<ExprAST> ParseExpression();
-    std::unique_ptr<PrototypeAST> ParsePrototype();
-    std::unique_ptr<FunctionAST> ParseDefinition();
-    std::unique_ptr<PrototypeAST> ParseExtern();
-    std::unique_ptr<FunctionAST> ParseTopLevelExpr();
+    unique_ptr<ExprAST> ParseNumberExpr();
+    unique_ptr<ExprAST> ParseParenExpr();
+    unique_ptr<ExprAST> ParseIdentifierExpr();
+    unique_ptr<ExprAST> ParsePrimary();
+    unique_ptr<ExprAST> ParseBinOpRHS(int ExprPrec, unique_ptr<ExprAST> LHS);
+    unique_ptr<ExprAST> ParseExpression();
+    unique_ptr<PrototypeAST> ParsePrototype();
+    unique_ptr<FunctionAST> ParseDefinition();
+    unique_ptr<PrototypeAST> ParseExtern();
+    unique_ptr<FunctionAST> ParseTopLevelExpr();
 
 public:
-    Parser(const std::vector<std::string>& tokens);
+    Parser(const vector<string> &tokens);
     // Main entry point for parsing.
-    std::unique_ptr<ExprAST> Parse();
+    unique_ptr<ExprAST> Parse();
 };
 
-#endif 
+#endif // PARSER_H

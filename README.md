@@ -4,28 +4,28 @@ This project is a compiler for the Kaleidoscope language, a simple procedural la
 
 ## Features
 
-*   **Lexer**: Tokenizes the Kaleidoscope source code.
-*   **Parser**: Parses the token stream into an Abstract Syntax Tree (AST).
-*   **AST**: Defines the structure of the Kaleidoscope language, including expressions, function definitions, and prototypes.
+- **Lexer**: Tokenizes the Kaleidoscope source code.
+- **Parser**: Parses the token stream into an Abstract Syntax Tree (AST).
+- **AST**: Defines the structure of the Kaleidoscope language, including expressions, function definitions, and prototypes.
 
 ## Language Constructs Supported
 
 Currently, the parser and AST support:
 
-*   Function Definitions (`def`)
-*   External Function Declarations (`extern`)
-*   Primary Expressions:
-    *   Numeric Literals (e.g., `1.0`, `42`)
-    *   Variable References (e.g., `x`, `myVar`)
-    *   Parenthesized Expressions (e.g., `(a + b)`)
-*   Binary Expressions with operator precedence (e.g., `a + b * c`)
-*   Function Calls (e.g., `foo(a, b)`)
+- Function Definitions (`def`)
+- External Function Declarations (`extern`)
+- Primary Expressions:
+  - Numeric Literals (e.g., `1.0`, `42`)
+  - Variable References (e.g., `x`, `myVar`)
+  - Parenthesized Expressions (e.g., `(a + b)`)
+- Binary Expressions with operator precedence (e.g., `a + b * c`)
+- Function Calls (e.g., `foo(a, b)`)
 
 ## Components
 
-*   `src/Lexer.h`, `src/Lexer.cpp`: The lexical analyzer.
-*   `src/Parser.h`, `src/Parser.cpp`: The parser that builds the AST.
-*   `src/AST.h`: The definition of the Abstract Syntax Tree nodes.
+- `src/Lexer.h`, `src/Lexer.cpp`: The lexical analyzer.
+- `src/Parser.h`, `src/Parser.cpp`: The parser that builds the AST.
+- `src/AST.h`: The definition of the Abstract Syntax Tree nodes.
 
 ## Getting Started
 
