@@ -22,7 +22,7 @@ std::string getCurrentTokenString(const Parser &p, const std::vector<std::string
 int main()
 {
     // Sample Kaleidoscope code
-    std::string code = "def foo(a, b) a+b*2; foo(1, 2); extern sin(x);";
+    std::string code = "def foo(a, b, c) a+b*2+c; foo(1, 2); extern sin(x);";
 
     std::cout << "Source Code:\n"
               << code << std::endl
