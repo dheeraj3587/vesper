@@ -5,6 +5,23 @@
   <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=35&pause=1000&color=00D4FF&center=true&vCenter=true&width=900&height=100&lines=%F0%9F%9A%80+VESPER+COMPILER+%F0%9F%9A%80;%F0%9F%94%A5+C%2B%2B+KALEIDOSCOPE+INSPIRED+%F0%9F%94%A5;%F0%9F%9B%A0+FUTURISTIC+LEXING+%7C+PARSING+%7C+AST+%7C+TESTING+%F0%9B%A0" alt="Animated banner"/>
 </p>
 
+<!-- Alternative Static Banner -->
+<h1 align="center">
+  <span style="color: #00D4FF; font-size: 2.5em; font-weight: bold;">
+    🚀 VESPER COMPILER 🚀
+  </span>
+</h1>
+<h2 align="center">
+  <span style="color: #FF00FF; font-size: 1.8em;">
+    ⚡ C++ KALEIDOSCOPE INSPIRED ⚡
+  </span>
+</h2>
+<h3 align="center">
+  <span style="color: #00FF88; font-size: 1.3em;">
+    🛰️ FUTURISTIC LEXING | PARSING | AST | TESTING ��️
+  </span>
+</h3>
+
 <!-- Animated Tech Stack -->
 <p align="center">
   <img src="https://img.shields.io/badge/C%2B%2B-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white" alt="C++"/>
@@ -25,10 +42,10 @@
 
 <!-- Animated Counter Badges -->
 <p align="center">
-  <img src="https://komarev.com/ghpvc/?username=yourname&repo=vesper&style=for-the-badge&color=00D4FF&label=PROFILE+VIEWS" alt="Profile Views"/>
-  <img src="https://img.shields.io/github/stars/yourname/vesper?style=for-the-badge&color=FF00FF&label=STARS" alt="Stars"/>
-  <img src="https://img.shields.io/github/forks/yourname/vesper?style=for-the-badge&color=00FF88&label=FORKS" alt="Forks"/>
-  <img src="https://img.shields.io/github/issues/yourname/vesper?style=for-the-badge&color=FF6B35&label=ISSUES" alt="Issues"/>
+  <img src="https://komarev.com/ghpvc/?username=dheerajjoshi&repo=vesper&style=for-the-badge&color=00D4FF&label=PROFILE+VIEWS" alt="Profile Views"/>
+  <img src="https://img.shields.io/github/stars/dheerajjoshi/vesper?style=for-the-badge&color=FF00FF&label=STARS" alt="Stars"/>
+  <img src="https://img.shields.io/github/forks/dheerajjoshi/vesper?style=for-the-badge&color=00FF88&label=FORKS" alt="Forks"/>
+  <img src="https://img.shields.io/github/issues/dheerajjoshi/vesper?style=for-the-badge&color=FF6B35&label=ISSUES" alt="Issues"/>
 </p>
 
 <!-- Futuristic ASCII Art with Colors -->
@@ -57,7 +74,7 @@
 
 <!-- Floating Animation -->
 <p align="center">
-  <img src="https://media.giphy.com/media/3o7aD2saalBwwftBIY/giphy.gif" width="200" alt="Floating animation"/>
+  <img src="https://media.giphy.com/media/26tn33aiTi1jkl6H6/giphy.gif" width="200" alt="Floating animation"/>
 </p>
 
 </div>
@@ -72,7 +89,7 @@
 <table>
 <tr>
 <td align="center" width="33%">
-  <img src="https://media.giphy.com/media/3o7aD2saalBwwftBIY/giphy.gif" width="100" alt="Core Components"/>
+  <img src="https://media.giphy.com/media/3o7abKhOpu9NMGJw8A/giphy.gif" width="100" alt="Core Components"/>
   <br><b>🔥 Core Components</b>
 </td>
 <td align="center" width="33%">
@@ -80,7 +97,7 @@
   <br><b>🛰️ Language Support</b>
 </td>
 <td align="center" width="33%">
-  <img src="https://media.giphy.com/media/3o7aD2saalBwwftBIY/giphy.gif" width="100" alt="Testing & Quality"/>
+  <img src="https://media.giphy.com/media/26tn33aiTi1jkl6H6/giphy.gif" width="100" alt="Testing & Quality"/>
   <br><b>🧪 Testing & Quality</b>
 </td>
 </tr>
@@ -182,24 +199,24 @@ vesper/
 <tr>
 <td align="center" width="33%">
   <b>✅ Completed</b><br>
-  <img src="https://progress-bar.dev/100?title=Lexer&width=200&color=00FF88" alt="Lexer Progress"/>
-  <img src="https://progress-bar.dev/100?title=Parser&width=200&color=00FF88" alt="Parser Progress"/>
-  <img src="https://progress-bar.dev/100?title=AST&width=200&color=00FF88" alt="AST Progress"/>
-  <img src="https://progress-bar.dev/100?title=Tests&width=200&color=00FF88" alt="Tests Progress"/>
+  <img src="https://img.shields.io/badge/Lexer-100%25-00FF88?style=for-the-badge&logo=check&logoColor=white&labelColor=00FF88&color=000000" alt="Lexer Progress"/>
+  <img src="https://img.shields.io/badge/Parser-100%25-00FF88?style=for-the-badge&logo=check&logoColor=white&labelColor=00FF88&color=000000" alt="Parser Progress"/>
+  <img src="https://img.shields.io/badge/AST-100%25-00FF88?style=for-the-badge&logo=check&logoColor=white&labelColor=00FF88&color=000000" alt="AST Progress"/>
+  <img src="https://img.shields.io/badge/Tests-100%25-00FF88?style=for-the-badge&logo=check&logoColor=white&labelColor=00FF88&color=000000" alt="Tests Progress"/>
 </td>
 <td align="center" width="33%">
   <b>🚧 In Progress</b><br>
-  <img src="https://progress-bar.dev/25?title=CodeGen&width=200&color=FF6B35" alt="CodeGen Progress"/>
-  <img src="https://progress-bar.dev/15?title=LLVM&width=200&color=FF6B35" alt="LLVM Progress"/>
-  <img src="https://progress-bar.dev/10?title=WASM&width=200&color=FF6B35" alt="WASM Progress"/>
-  <img src="https://progress-bar.dev/5?title=Optimize&width=200&color=FF6B35" alt="Optimize Progress"/>
+  <img src="https://img.shields.io/badge/CodeGen-25%25-FF6B35?style=for-the-badge&logo=code&logoColor=white&labelColor=FF6B35&color=000000" alt="CodeGen Progress"/>
+  <img src="https://img.shields.io/badge/LLVM-15%25-FF6B35?style=for-the-badge&logo=code&logoColor=white&labelColor=FF6B35&color=000000" alt="LLVM Progress"/>
+  <img src="https://img.shields.io/badge/WASM-10%25-FF6B35?style=for-the-badge&logo=code&logoColor=white&labelColor=FF6B35&color=000000" alt="WASM Progress"/>
+  <img src="https://img.shields.io/badge/Optimize-5%25-FF6B35?style=for-the-badge&logo=rocket&logoColor=white&labelColor=FF6B35&color=000000" alt="Optimize Progress"/>
 </td>
 <td align="center" width="33%">
   <b>🔮 Planned</b><br>
-  <img src="https://progress-bar.dev/0?title=Semantic&width=200&color=FF00FF" alt="Semantic Progress"/>
-  <img src="https://progress-bar.dev/0?title=Extensions&width=200&color=FF00FF" alt="Extensions Progress"/>
-  <img src="https://progress-bar.dev/0?title=REPL&width=200&color=FF00FF" alt="REPL Progress"/>
-  <img src="https://progress-bar.dev/0?title=IDE&width=200&color=FF00FF" alt="IDE Progress"/>
+  <img src="https://img.shields.io/badge/Semantic-0%25-FF00FF?style=for-the-badge&logo=lightbulb&logoColor=white&labelColor=FF00FF&color=000000" alt="Semantic Progress"/>
+  <img src="https://img.shields.io/badge/Extensions-0%25-FF00FF?style=for-the-badge&logo=puzzle&logoColor=white&labelColor=FF00FF&color=000000" alt="Extensions Progress"/>
+  <img src="https://img.shields.io/badge/REPL-0%25-FF00FF?style=for-the-badge&logo=terminal&logoColor=white&labelColor=FF00FF&color=000000" alt="REPL Progress"/>
+  <img src="https://img.shields.io/badge/IDE-0%25-FF00FF?style=for-the-badge&logo=code&logoColor=white&labelColor=FF00FF&color=000000" alt="IDE Progress"/>
 </td>
 </tr>
 </table>
@@ -382,16 +399,16 @@ git push origin feature/amazing-feature
 
 <!-- Final Animated Stats -->
 <p align="center">
-  <img src="https://komarev.com/ghpvc/?username=yourname&repo=vesper&style=for-the-badge&color=00D4FF" alt="Profile Views"/>
-  <img src="https://img.shields.io/github/stars/yourname/vesper?style=for-the-badge&color=FF00FF" alt="Stars"/>
-  <img src="https://img.shields.io/github/forks/yourname/vesper?style=for-the-badge&color=00FF88" alt="Forks"/>
-  <img src="https://img.shields.io/github/last-commit/yourname/vesper?style=for-the-badge&color=FF6B35" alt="Last Commit"/>
+  <img src="https://komarev.com/ghpvc/?username=dheerajjoshi&repo=vesper&style=for-the-badge&color=00D4FF" alt="Profile Views"/>
+  <img src="https://img.shields.io/github/stars/dheerajjoshi/vesper?style=for-the-badge&color=FF00FF" alt="Stars"/>
+  <img src="https://img.shields.io/github/forks/dheerajjoshi/vesper?style=for-the-badge&color=00FF88" alt="Forks"/>
+  <img src="https://img.shields.io/github/last-commit/dheerajjoshi/vesper?style=for-the-badge&color=FF6B35" alt="Last Commit"/>
 </p>
 
 <!-- Floating Particles Animation -->
 <p align="center">
-  <img src="https://media.giphy.com/media/3o7aD2saalBwwftBIY/giphy.gif" width="100" alt="Particle 1"/>
-  <img src="https://media.giphy.com/media/3o7aD2saalBwwftBIY/giphy.gif" width="100" alt="Particle 2"/>
+  <img src="https://media.giphy.com/media/3o7abKhOpu9NMGJw8A/giphy.gif" width="100" alt="Particle 1"/>
+  <img src="https://media.giphy.com/media/26tn33aiTi1jkl6H6/giphy.gif" width="100" alt="Particle 2"/>
   <img src="https://media.giphy.com/media/3o7aD2saalBwwftBIY/giphy.gif" width="100" alt="Particle 3"/>
 </p>
 
