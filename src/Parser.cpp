@@ -3,6 +3,7 @@
 #include <cctype>
 #include <cstdlib>
 #include <map>
+#include <stdexcept>
 
 using namespace std;
 

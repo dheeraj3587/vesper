@@ -1,0 +1,5 @@
+
+def average(x, y)
+    (x + y) / 2.0;
+
+average(10.0, 20.0); 

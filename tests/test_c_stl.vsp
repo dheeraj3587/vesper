@@ -1,0 +1,165 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <memory>
+
+// C Language Keywords Test
+int main() {
+    // Data types
+    auto x = 42;
+    const char* message = "Hello World";
+    double pi = 3.14159;
+    float temperature = 98.6f;
+    long big_number = 1234567890L;
+    unsigned int count = 100;
+    volatile int sensor_value = 0;
+    
+    // Control flow
+    if (x > 0) {
+        for (int i = 0; i < 10; i++) {
+            while (i < 5) {
+                switch (i) {
+                    case 0:
+                        break;
+                    case 1:
+                        continue;
+                    default:
+                        goto end_loop;
+                }
+                i++;
+            }
+        }
+    } else {
+        do {
+            x--;
+        } while (x > 0);
+    }
+    
+    end_loop:
+    
+    // STL Containers
+    std::vector<int> numbers = {1, 2, 3, 4, 5};
+    std::list<std::string> names = {"Alice", "Bob", "Charlie"};
+    std::map<std::string, int> scores = {{"Alice", 95}, {"Bob", 87}};
+    std::set<double> unique_values = {1.1, 2.2, 3.3};
+    std::unordered_map<int, std::string> cache;
+    std::array<int, 5> fixed_array = {10, 20, 30, 40, 50};
+    
+    // STL Algorithms
+    std::sort(numbers.begin(), numbers.end());
+    auto it = std::find(numbers.begin(), numbers.end(), 3);
+    int sum = std::accumulate(numbers.begin(), numbers.end(), 0);
+    std::transform(names.begin(), names.end(), names.begin(), 
+                   [](const std::string& s) { return s + "!"; });
+    
+    // STL Iterators
+    for (auto iter = numbers.begin(); iter != numbers.end(); ++iter) {
+        std::cout << *iter << " ";
+    }
+    
+    // STL Utilities
+    auto pair = std::make_pair("key", 42);
+    auto tuple = std::make_tuple(1, "hello", 3.14);
+    std::unique_ptr<int> smart_ptr = std::make_unique<int>(100);
+    std::shared_ptr<std::string> shared_str = std::make_shared<std::string>("shared");
+    
+    // STL String Operations
+    std::string text = "Hello World";
+    text.append("!");
+    text.replace(0, 5, "Hi");
+    size_t pos = text.find("World");
+    std::string substr = text.substr(0, 2);
+    int num = std::stoi("123");
+    std::string num_str = std::to_string(456);
+    
+    // STL I/O Operations
+    std::cout << "Result: " << sum << std::endl;
+    std::cerr << "Error message" << std::endl;
+    std::cin >> x;
+    
+    // STL Memory Management
+    std::allocator<int> alloc;
+    int* ptr = alloc.allocate(10);
+    alloc.deallocate(ptr, 10);
+    
+    // Multi-character operators
+    int a = 5, b = 3;
+    int result = a <=> b;  // Three-way comparison (C++20)
+    a += b;
+    b -= a;
+    a *= 2;
+    b /= 2;
+    a %= 3;
+    a <<= 1;
+    b >>= 1;
+    a &= b;
+    a |= b;
+    a ^= b;
+    
+    // Logical operators
+    bool condition1 = true, condition2 = false;
+    bool result1 = condition1 && condition2;
+    bool result2 = condition1 || condition2;
+    bool result3 = !condition1;
+    
+    // Bitwise operators
+    int bit_result = a & b;
+    bit_result = a | b;
+    bit_result = a ^ b;
+    bit_result = ~a;
+    
+    // Comparison operators
+    bool is_equal = (a == b);
+    bool is_not_equal = (a != b);
+    bool is_less = (a < b);
+    bool is_greater = (a > b);
+    bool is_less_equal = (a <= b);
+    bool is_greater_equal = (a >= b);
+    
+    return 0;
+}
+
+// Function with C keywords
+struct Point {
+    int x, y;
+    
+    Point(int x, int y) : x(x), y(y) {}
+    
+    bool operator<(const Point& other) const {
+        return x < other.x || (x == other.x && y < other.y);
+    }
+};
+
+enum class Color {
+    RED, GREEN, BLUE
+};
+
+typedef std::vector<Point> PointList;
+using StringVector = std::vector<std::string>;
+
+union Data {
+    int i;
+    float f;
+    char str[20];
+};
+
+// Template with STL
+template<typename T>
+class Container {
+private:
+    std::vector<T> data;
+    
+public:
+    void add(const T& item) {
+        data.push_back(item);
+    }
+    
+    void sort() {
+        std::sort(data.begin(), data.end());
+    }
+    
+    typename std::vector<T>::iterator find(const T& item) {
+        return std::find(data.begin(), data.end(), item);
+    }
+}; 
