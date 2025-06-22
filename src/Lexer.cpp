@@ -447,7 +447,7 @@ std::vector<std::string> Lexer::tokenize()
         // Handle string literals
         if (current_char_ == '"')
         {
-            tokens.push_back(getStringLiteral());
+            tokens.push_back("STRING_LITERAL:" + getStringLiteral());
             last_token_was_operator = false;
             continue;
         }
@@ -455,7 +455,7 @@ std::vector<std::string> Lexer::tokenize()
         // Handle character literals
         if (current_char_ == '\'')
         {
-            tokens.push_back(getCharLiteral());
+            tokens.push_back("CHAR_LITERAL:" + getCharLiteral());
             last_token_was_operator = false;
             continue;
         }
@@ -480,7 +480,8 @@ std::vector<std::string> Lexer::tokenize()
         if (std::isalpha(current_char_) || current_char_ == '_')
         {
             std::string identifier = getIdentifier();
-            // Check if it's a keyword or STL component
+
+            // Tag the identifier based on its type
             if (isCKeyword(identifier))
             {
                 tokens.push_back("KEYWORD:" + identifier);
@@ -489,23 +490,17 @@ std::vector<std::string> Lexer::tokenize()
             {
                 tokens.push_back("STL_CONTAINER:" + identifier);
             }
-            else if (isSTLAlgorithm(identifier) && isSTLUtility(identifier))
-            {
-                // If both, add both tags
-                tokens.push_back("STL_ALGORITHM:" + identifier);
-                tokens.push_back("STL_UTILITY:" + identifier);
-            }
             else if (isSTLAlgorithm(identifier))
             {
                 tokens.push_back("STL_ALGORITHM:" + identifier);
             }
-            else if (isSTLUtility(identifier))
-            {
-                tokens.push_back("STL_UTILITY:" + identifier);
-            }
             else if (isSTLIterator(identifier))
             {
                 tokens.push_back("STL_ITERATOR:" + identifier);
+            }
+            else if (isSTLUtility(identifier))
+            {
+                tokens.push_back("STL_UTILITY:" + identifier);
             }
             else if (isSTLIO(identifier))
             {
@@ -521,7 +516,7 @@ std::vector<std::string> Lexer::tokenize()
             }
             else
             {
-                tokens.push_back(identifier);
+                tokens.push_back("IDENTIFIER:" + identifier);
             }
             last_token_was_operator = false;
             continue;

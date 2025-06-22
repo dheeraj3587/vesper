@@ -1,0 +1,39 @@
+// Test file for Vesper Compiler Frontend
+// This demonstrates the new C-style language features
+
+// Variable declarations
+int x = 5;
+float y = 3.14;
+string name = "Vesper Compiler";
+
+// Simple expressions
+int result = x + y * 2;
+
+// If-else statement
+if (x > 0) {
+    y = x * 2;
+} else {
+    y = 0;
+}
+
+// While loop
+while (x > 0) {
+    x = x - 1;
+}
+
+// For loop
+for (int i = 0; i < 10; i++) {
+    result = result + i;
+}
+
+// Function definition
+int add(int a, int b) {
+    return a + b;
+}
+
+// Function call
+int sum = add(x, y);
+
+// Array access (if supported)
+// int arr[10];
+// arr[0] = 5; 

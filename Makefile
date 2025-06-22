@@ -6,7 +6,7 @@ OBJECTS = $(SOURCES:src/%.cpp=build/obj/%.o)
 HEADERS = include/Lexer.h include/Parser.h include/AST.h
 
 # Test files
-TEST_UNIT_SOURCES = tests/unit/test_lexer.cpp tests/unit/test_parser.cpp tests/unit/test_ast.cpp
+TEST_UNIT_SOURCES = tests/unit/run_all_tests.cpp tests/unit/test_lexer.cpp tests/unit/test_parser.cpp tests/unit/test_ast.cpp
 TEST_INTEGRATION_SOURCES = tests/integration/test_integration.cpp
 TEST_UNIT_OBJECTS = $(TEST_UNIT_SOURCES:tests/unit/%.cpp=build/obj/test_unit_%.o)
 TEST_INTEGRATION_OBJECTS = $(TEST_INTEGRATION_SOURCES:tests/integration/%.cpp=build/obj/test_integration_%.o)

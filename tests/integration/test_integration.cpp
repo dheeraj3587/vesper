@@ -1,4 +1,4 @@
-#include "test_framework.h"
+#include "../unit/test_framework.h"
 #include "Lexer.h"
 #include "Parser.h"
 #include "AST.h"
@@ -23,7 +23,7 @@ void test_basic_kaleidoscope_integration()
         tf.assert_contains(tokens[4], "NUMBER:3", "Fifth token is number 3");
 
         Parser parser(tokens);
-        auto ast = parser.Parse();
+        auto ast = parser.ParseProgram();
         tf.assert_true(ast != nullptr, "AST created successfully");
 
         if (ast)
@@ -43,7 +43,7 @@ void test_basic_kaleidoscope_integration()
         tf.assert_true(tokens.size() > 0, "Tokens generated for function definition");
 
         Parser parser(tokens);
-        auto ast = parser.Parse();
+        auto ast = parser.ParseProgram();
         tf.assert_true(ast != nullptr, "Function definition AST created");
 
         if (ast)
@@ -72,7 +72,7 @@ void test_c_language_integration()
         tf.assert_contains(tokens[4], "PUNCTUATOR:;", "Semicolon recognized");
 
         Parser parser(tokens);
-        auto ast = parser.Parse();
+        auto ast = parser.ParseProgram();
         tf.assert_true(ast != nullptr, "C-style declaration parsed");
     }
 
@@ -93,7 +93,7 @@ void test_c_language_integration()
         tf.assert_contains(tokens[8], "PUNCTUATOR:}", "Closing brace recognized");
 
         Parser parser(tokens);
-        auto ast = parser.Parse();
+        auto ast = parser.ParseProgram();
         tf.assert_true(ast != nullptr, "C-style function parsed");
     }
 }
@@ -116,7 +116,7 @@ void test_stl_integration()
         tf.assert_contains(tokens[5], "PUNCTUATOR:>", "Template closing recognized");
 
         Parser parser(tokens);
-        auto ast = parser.Parse();
+        auto ast = parser.ParseProgram();
         tf.assert_true(ast != nullptr, "STL container declaration parsed");
     }
 
@@ -135,7 +135,7 @@ void test_stl_integration()
         tf.assert_contains(tokens[6], "STL_ITERATOR:begin", "begin iterator recognized");
 
         Parser parser(tokens);
-        auto ast = parser.Parse();
+        auto ast = parser.ParseProgram();
         tf.assert_true(ast != nullptr, "STL algorithm call parsed");
     }
 }
@@ -158,7 +158,7 @@ void test_complex_expressions_integration()
         tf.assert_contains(tokens[5], "PUNCTUATOR:*", "Multiply operator recognized");
 
         Parser parser(tokens);
-        auto ast = parser.Parse();
+        auto ast = parser.ParseProgram();
         tf.assert_true(ast != nullptr, "Complex arithmetic expression parsed");
 
         if (ast)
@@ -186,7 +186,7 @@ void test_complex_expressions_integration()
         tf.assert_contains(tokens[8], "PUNCTUATOR:)", "Function call closing recognized");
 
         Parser parser(tokens);
-        auto ast = parser.Parse();
+        auto ast = parser.ParseProgram();
         tf.assert_true(ast != nullptr, "Nested function calls parsed");
     }
 }
@@ -204,11 +204,11 @@ void test_error_recovery_integration()
         Parser parser(tokens);
 
         // Parse first expression
-        auto ast1 = parser.Parse();
+        auto ast1 = parser.ParseProgram();
         tf.assert_true(ast1 != nullptr, "First expression parsed despite semicolon");
 
         // Parse second expression
-        auto ast2 = parser.Parse();
+        auto ast2 = parser.ParseProgram();
         tf.assert_true(ast2 != nullptr, "Second expression parsed");
 
         if (ast1)
@@ -243,7 +243,7 @@ void test_comments_integration()
         tf.assert_contains(tokens[4], "PUNCTUATOR:;", "Semicolon after comment recognized");
 
         Parser parser(tokens);
-        auto ast = parser.Parse();
+        auto ast = parser.ParseProgram();
         tf.assert_true(ast != nullptr, "Code with comments parsed successfully");
     }
 
@@ -259,7 +259,7 @@ void test_comments_integration()
         tf.assert_contains(tokens[3], "NUMBER:3.14", "Number after multi-line comment recognized");
 
         Parser parser(tokens);
-        auto ast = parser.Parse();
+        auto ast = parser.ParseProgram();
         tf.assert_true(ast != nullptr, "Code with multi-line comments parsed successfully");
     }
 }
@@ -282,7 +282,7 @@ void test_string_literals_integration()
         tf.assert_contains(tokens[5], "PUNCTUATOR:;", "Semicolon recognized");
 
         Parser parser(tokens);
-        auto ast = parser.Parse();
+        auto ast = parser.ParseProgram();
         tf.assert_true(ast != nullptr, "String literal expression parsed");
     }
 }
@@ -335,7 +335,7 @@ int main() {
 
         // Try to parse as much as possible
         int parsed_count = 0;
-        while (auto ast = parser.Parse())
+        while (auto ast = parser.ParseProgram())
         {
             parsed_count++;
             if (parsed_count <= 3)

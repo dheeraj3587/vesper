@@ -2,38 +2,58 @@
 #include "AST.h"
 #include <iostream>
 #include <memory>
+#include <vector>
 
 void test_number_expr_ast()
 {
     TestFramework tf("NumberExprAST");
 
-    // Test basic number
+    // Test integer literal
     {
-        NumberExprAST num(42.0);
-        tf.assert_true(true, "NumberExprAST created successfully");
+        NumberExprAST num(42);
+        tf.assert_true(true, "NumberExprAST with integer created successfully");
 
-        // Test print functionality (capture output)
-        std::cout << "NumberExprAST(42.0): ";
+        std::cout << "NumberExprAST(42): ";
         num.print();
         std::cout << std::endl;
     }
 
-    // Test negative number
+    // Test floating point literal
     {
-        NumberExprAST num(-3.14);
-        tf.assert_true(true, "Negative NumberExprAST created successfully");
+        NumberExprAST num(3.14159);
+        tf.assert_true(true, "NumberExprAST with float created successfully");
 
-        std::cout << "NumberExprAST(-3.14): ";
+        std::cout << "NumberExprAST(3.14159): ";
         num.print();
         std::cout << std::endl;
     }
 
     // Test zero
     {
-        NumberExprAST num(0.0);
-        tf.assert_true(true, "Zero NumberExprAST created successfully");
+        NumberExprAST num(0);
+        tf.assert_true(true, "NumberExprAST with zero created successfully");
 
-        std::cout << "NumberExprAST(0.0): ";
+        std::cout << "NumberExprAST(0): ";
+        num.print();
+        std::cout << std::endl;
+    }
+
+    // Test negative number
+    {
+        NumberExprAST num(-10.5);
+        tf.assert_true(true, "NumberExprAST with negative number created successfully");
+
+        std::cout << "NumberExprAST(-10.5): ";
+        num.print();
+        std::cout << std::endl;
+    }
+
+    // Test large number
+    {
+        NumberExprAST num(1e6);
+        tf.assert_true(true, "NumberExprAST with large number created successfully");
+
+        std::cout << "NumberExprAST(1e6): ";
         num.print();
         std::cout << std::endl;
     }
@@ -48,17 +68,17 @@ void test_variable_expr_ast()
         VariableExprAST var("x");
         tf.assert_true(true, "VariableExprAST created successfully");
 
-        std::cout << "VariableExprAST(\"x\"): ";
+        std::cout << "VariableExprAST(x): ";
         var.print();
         std::cout << std::endl;
     }
 
     // Test variable with underscore
     {
-        VariableExprAST var("_my_variable");
+        VariableExprAST var("my_variable");
         tf.assert_true(true, "VariableExprAST with underscore created successfully");
 
-        std::cout << "VariableExprAST(\"_my_variable\"): ";
+        std::cout << "VariableExprAST(my_variable): ";
         var.print();
         std::cout << std::endl;
     }
@@ -68,7 +88,17 @@ void test_variable_expr_ast()
         VariableExprAST var("var123");
         tf.assert_true(true, "VariableExprAST with numbers created successfully");
 
-        std::cout << "VariableExprAST(\"var123\"): ";
+        std::cout << "VariableExprAST(var123): ";
+        var.print();
+        std::cout << std::endl;
+    }
+
+    // Test single letter variable
+    {
+        VariableExprAST var("i");
+        tf.assert_true(true, "VariableExprAST with single letter created successfully");
+
+        std::cout << "VariableExprAST(i): ";
         var.print();
         std::cout << std::endl;
     }
@@ -82,7 +112,7 @@ void test_binary_expr_ast()
     {
         auto lhs = std::make_unique<NumberExprAST>(5.0);
         auto rhs = std::make_unique<NumberExprAST>(3.0);
-        BinaryExprAST bin('+', std::move(lhs), std::move(rhs));
+        BinaryExprAST bin("+", std::move(lhs), std::move(rhs));
         tf.assert_true(true, "BinaryExprAST created successfully");
 
         std::cout << "BinaryExprAST(5 + 3): ";
@@ -94,7 +124,7 @@ void test_binary_expr_ast()
     {
         auto lhs = std::make_unique<VariableExprAST>("x");
         auto rhs = std::make_unique<VariableExprAST>("y");
-        BinaryExprAST bin('*', std::move(lhs), std::move(rhs));
+        BinaryExprAST bin("*", std::move(lhs), std::move(rhs));
         tf.assert_true(true, "BinaryExprAST with variables created successfully");
 
         std::cout << "BinaryExprAST(x * y): ";
@@ -106,10 +136,10 @@ void test_binary_expr_ast()
     {
         auto inner_lhs = std::make_unique<NumberExprAST>(2.0);
         auto inner_rhs = std::make_unique<NumberExprAST>(3.0);
-        auto inner = std::make_unique<BinaryExprAST>('+', std::move(inner_lhs), std::move(inner_rhs));
+        auto inner = std::make_unique<BinaryExprAST>("+", std::move(inner_lhs), std::move(inner_rhs));
 
         auto outer_rhs = std::make_unique<NumberExprAST>(4.0);
-        BinaryExprAST outer('*', std::move(inner), std::move(outer_rhs));
+        BinaryExprAST outer("*", std::move(inner), std::move(outer_rhs));
         tf.assert_true(true, "Complex BinaryExprAST created successfully");
 
         std::cout << "BinaryExprAST((2 + 3) * 4): ";
@@ -183,44 +213,45 @@ void test_prototype_ast()
 
     // Test simple function prototype
     {
-        std::vector<std::string> args = {"x", "y"};
-        PrototypeAST proto("average", std::move(args));
+        std::vector<std::pair<DataType, std::string>> args = {{DataType::INT, "x"}, {DataType::INT, "y"}};
+        PrototypeAST proto(DataType::INT, "average", std::move(args));
         tf.assert_true(true, "PrototypeAST created successfully");
 
-        std::cout << "PrototypeAST(def average(x, y)): ";
+        std::cout << "PrototypeAST(int average(int x, int y)): ";
         proto.print();
         std::cout << std::endl;
     }
 
     // Test function prototype with no arguments
     {
-        std::vector<std::string> args;
-        PrototypeAST proto("main", std::move(args));
+        std::vector<std::pair<DataType, std::string>> args;
+        PrototypeAST proto(DataType::VOID, "main", std::move(args));
         tf.assert_true(true, "PrototypeAST with no arguments created successfully");
 
-        std::cout << "PrototypeAST(def main()): ";
+        std::cout << "PrototypeAST(void main()): ";
         proto.print();
         std::cout << std::endl;
     }
 
     // Test function prototype with many arguments
     {
-        std::vector<std::string> args = {"a", "b", "c", "d", "e"};
-        PrototypeAST proto("complex_func", std::move(args));
+        std::vector<std::pair<DataType, std::string>> args = {
+            {DataType::INT, "a"}, {DataType::FLOAT, "b"}, {DataType::STRING, "c"}};
+        PrototypeAST proto(DataType::FLOAT, "complex_func", std::move(args));
         tf.assert_true(true, "PrototypeAST with many arguments created successfully");
 
-        std::cout << "PrototypeAST(def complex_func(a, b, c, d, e)): ";
+        std::cout << "PrototypeAST(float complex_func(int a, float b, string c)): ";
         proto.print();
         std::cout << std::endl;
     }
 
     // Test operator prototype
     {
-        std::vector<std::string> args = {"lhs", "rhs"};
-        PrototypeAST proto("+", std::move(args), true, 1);
+        std::vector<std::pair<DataType, std::string>> args = {{DataType::INT, "lhs"}, {DataType::INT, "rhs"}};
+        PrototypeAST proto(DataType::INT, "+", std::move(args), true, 1);
         tf.assert_true(true, "Operator PrototypeAST created successfully");
 
-        std::cout << "PrototypeAST(binary + (lhs, rhs)): ";
+        std::cout << "PrototypeAST(int +(int lhs, int rhs)): ";
         proto.print();
         std::cout << std::endl;
     }
@@ -232,55 +263,58 @@ void test_function_ast()
 
     // Test simple function definition
     {
-        std::vector<std::string> proto_args = {"x", "y"};
-        auto proto = std::make_unique<PrototypeAST>("add", std::move(proto_args));
+        std::vector<std::pair<DataType, std::string>> proto_args = {{DataType::INT, "x"}, {DataType::INT, "y"}};
+        auto proto = std::make_unique<PrototypeAST>(DataType::INT, "add", std::move(proto_args));
 
         auto lhs = std::make_unique<VariableExprAST>("x");
         auto rhs = std::make_unique<VariableExprAST>("y");
-        auto body = std::make_unique<BinaryExprAST>('+', std::move(lhs), std::move(rhs));
+        auto expr = std::make_unique<BinaryExprAST>("+", std::move(lhs), std::move(rhs));
+        auto body = std::make_unique<ReturnStmtAST>(std::move(expr));
 
         FunctionAST func(std::move(proto), std::move(body));
         tf.assert_true(true, "FunctionAST created successfully");
 
-        std::cout << "FunctionAST(def add(x, y) (x + y)): ";
+        std::cout << "FunctionAST(int add(int x, int y) { return x + y; }): ";
         func.print();
         std::cout << std::endl;
     }
 
     // Test function with complex body
     {
-        std::vector<std::string> proto_args = {"a", "b", "c"};
-        auto proto = std::make_unique<PrototypeAST>("complex", std::move(proto_args));
+        std::vector<std::pair<DataType, std::string>> proto_args = {{DataType::INT, "a"}, {DataType::INT, "b"}, {DataType::INT, "c"}};
+        auto proto = std::make_unique<PrototypeAST>(DataType::INT, "complex", std::move(proto_args));
 
-        // Create complex body: (a + b) * c
+        // Create complex body: return (a + b) * c;
         auto inner_lhs = std::make_unique<VariableExprAST>("a");
         auto inner_rhs = std::make_unique<VariableExprAST>("b");
-        auto inner = std::make_unique<BinaryExprAST>('+', std::move(inner_lhs), std::move(inner_rhs));
+        auto inner = std::make_unique<BinaryExprAST>("+", std::move(inner_lhs), std::move(inner_rhs));
 
         auto outer_rhs = std::make_unique<VariableExprAST>("c");
-        auto body = std::make_unique<BinaryExprAST>('*', std::move(inner), std::move(outer_rhs));
+        auto expr = std::make_unique<BinaryExprAST>("*", std::move(inner), std::move(outer_rhs));
+        auto body = std::make_unique<ReturnStmtAST>(std::move(expr));
 
         FunctionAST func(std::move(proto), std::move(body));
         tf.assert_true(true, "FunctionAST with complex body created successfully");
 
-        std::cout << "FunctionAST(def complex(a, b, c) ((a + b) * c)): ";
+        std::cout << "FunctionAST(int complex(int a, int b, int c) { return (a + b) * c; }): ";
         func.print();
         std::cout << std::endl;
     }
 
     // Test function with function call in body
     {
-        std::vector<std::string> proto_args = {"x"};
-        auto proto = std::make_unique<PrototypeAST>("wrapper", std::move(proto_args));
+        std::vector<std::pair<DataType, std::string>> proto_args = {{DataType::INT, "x"}};
+        auto proto = std::make_unique<PrototypeAST>(DataType::INT, "wrapper", std::move(proto_args));
 
         std::vector<std::unique_ptr<ExprAST>> call_args;
         call_args.push_back(std::make_unique<VariableExprAST>("x"));
-        auto body = std::make_unique<CallExprAST>("inner_func", std::move(call_args));
+        auto expr = std::make_unique<CallExprAST>("inner_func", std::move(call_args));
+        auto body = std::make_unique<ReturnStmtAST>(std::move(expr));
 
         FunctionAST func(std::move(proto), std::move(body));
-        tf.assert_true(true, "FunctionAST with function call body created successfully");
+        tf.assert_true(true, "FunctionAST with function call created successfully");
 
-        std::cout << "FunctionAST(def wrapper(x) inner_func(x)): ";
+        std::cout << "FunctionAST(int wrapper(int x) { return inner_func(x); }): ";
         func.print();
         std::cout << std::endl;
     }
@@ -290,31 +324,43 @@ void test_ast_polymorphism()
 {
     TestFramework tf("AST Polymorphism");
 
-    // Test vector of different AST types
+    // Test vector of different expression types
     {
         std::vector<std::unique_ptr<ExprAST>> expressions;
 
-        // Add different types of expressions
         expressions.push_back(std::make_unique<NumberExprAST>(42.0));
         expressions.push_back(std::make_unique<VariableExprAST>("x"));
 
         auto lhs = std::make_unique<NumberExprAST>(1.0);
         auto rhs = std::make_unique<NumberExprAST>(2.0);
-        expressions.push_back(std::make_unique<BinaryExprAST>('+', std::move(lhs), std::move(rhs)));
+        expressions.push_back(std::make_unique<BinaryExprAST>("+", std::move(lhs), std::move(rhs)));
 
-        std::vector<std::unique_ptr<ExprAST>> call_args;
-        call_args.push_back(std::make_unique<NumberExprAST>(5.0));
-        expressions.push_back(std::make_unique<CallExprAST>("func", std::move(call_args)));
+        tf.assert_true(expressions.size() == 3, "Vector of polymorphic AST nodes created successfully");
 
-        tf.assert_equal(expressions.size(), size_t(4), "Vector contains 4 different AST types");
-
-        std::cout << "Polymorphic AST vector contents:\n";
-        for (size_t i = 0; i < expressions.size(); ++i)
+        std::cout << "Polymorphic expressions: ";
+        for (const auto &expr : expressions)
         {
-            std::cout << "  " << i << ": ";
-            expressions[i]->print();
-            std::cout << std::endl;
+            expr->print();
+            std::cout << " ";
         }
+        std::cout << std::endl;
+    }
+
+    // Test function that accepts any expression
+    {
+        auto test_expr = [](const std::unique_ptr<ExprAST> &expr)
+        {
+            std::cout << "Expression: ";
+            expr->print();
+            std::cout << std::endl;
+            return true;
+        };
+
+        std::unique_ptr<ExprAST> num = std::make_unique<NumberExprAST>(10.0);
+        std::unique_ptr<ExprAST> var = std::make_unique<VariableExprAST>("y");
+
+        tf.assert_true(test_expr(num), "Polymorphic function works with NumberExprAST");
+        tf.assert_true(test_expr(var), "Polymorphic function works with VariableExprAST");
     }
 }
 
@@ -324,30 +370,35 @@ void test_ast_memory_management()
 
     // Test unique_ptr ownership transfer
     {
-        auto original = std::make_unique<NumberExprAST>(42.0);
-        tf.assert_true(original != nullptr, "Original unique_ptr created");
+        auto num = std::make_unique<NumberExprAST>(5.0);
+        auto var = std::make_unique<VariableExprAST>("x");
 
-        auto moved = std::move(original);
-        tf.assert_true(moved != nullptr, "Moved unique_ptr is valid");
-        tf.assert_true(original == nullptr, "Original unique_ptr is null after move");
+        // Transfer ownership to binary expression
+        auto bin = std::make_unique<BinaryExprAST>("+", std::move(num), std::move(var));
 
-        // Test that moved pointer can still be used
-        std::cout << "Moved NumberExprAST: ";
-        moved->print();
+        tf.assert_true(bin != nullptr, "Ownership transfer successful");
+        tf.assert_true(num == nullptr, "Original pointer is null after move");
+        tf.assert_true(var == nullptr, "Original pointer is null after move");
+
+        std::cout << "Memory management test: ";
+        bin->print();
         std::cout << std::endl;
     }
 
-    // Test nested unique_ptr management
+    // Test vector of unique_ptr
     {
-        auto inner = std::make_unique<NumberExprAST>(10.0);
-        auto outer = std::make_unique<BinaryExprAST>('+', std::move(inner), std::make_unique<NumberExprAST>(5.0));
+        std::vector<std::unique_ptr<ExprAST>> expressions;
 
-        tf.assert_true(outer != nullptr, "Nested unique_ptr structure created");
-        tf.assert_true(inner == nullptr, "Inner unique_ptr moved successfully");
+        expressions.push_back(std::make_unique<NumberExprAST>(1.0));
+        expressions.push_back(std::make_unique<NumberExprAST>(2.0));
+        expressions.push_back(std::make_unique<NumberExprAST>(3.0));
 
-        std::cout << "Nested unique_ptr structure: ";
-        outer->print();
-        std::cout << std::endl;
+        tf.assert_true(expressions.size() == 3, "Vector of unique_ptr expressions created successfully");
+
+        // Move vector
+        auto moved_expressions = std::move(expressions);
+        tf.assert_true(expressions.empty(), "Original vector is empty after move");
+        tf.assert_true(moved_expressions.size() == 3, "Moved vector has correct size");
     }
 }
 
@@ -355,41 +406,31 @@ void test_ast_error_handling()
 {
     TestFramework tf("AST Error Handling");
 
-    // Test with null pointers (should not crash)
+    // Test null pointer handling
     {
         try
         {
-            // This should not crash even with null pointers
-            std::vector<std::unique_ptr<ExprAST>> empty_args;
-            CallExprAST call("test", std::move(empty_args));
-            tf.assert_true(true, "CallExprAST with empty args created successfully");
-
-            std::cout << "CallExprAST with empty args: ";
-            call.print();
-            std::cout << std::endl;
+            std::unique_ptr<ExprAST> null_expr = nullptr;
+            // This should not crash
+            tf.assert_true(null_expr == nullptr, "Null pointer handled correctly");
         }
         catch (...)
         {
-            tf.assert_true(false, "CallExprAST with empty args should not throw");
+            tf.assert_true(false, "Exception thrown when handling null pointer");
         }
     }
-}
 
-int main()
-{
-    std::cout << "🚀 Starting AST Unit Tests\n";
-    std::cout << "==========================\n";
-
-    RUN_TEST(test_number_expr_ast);
-    RUN_TEST(test_variable_expr_ast);
-    RUN_TEST(test_binary_expr_ast);
-    RUN_TEST(test_call_expr_ast);
-    RUN_TEST(test_prototype_ast);
-    RUN_TEST(test_function_ast);
-    RUN_TEST(test_ast_polymorphism);
-    RUN_TEST(test_ast_memory_management);
-    RUN_TEST(test_ast_error_handling);
-
-    std::cout << "\n🎉 All AST unit tests completed!\n";
-    return 0;
+    // Test empty vector handling
+    {
+        try
+        {
+            std::vector<std::unique_ptr<ExprAST>> empty_args;
+            CallExprAST call("test", std::move(empty_args));
+            tf.assert_true(true, "CallExprAST with empty arguments created successfully");
+        }
+        catch (...)
+        {
+            tf.assert_true(false, "Exception thrown when creating CallExprAST with empty arguments");
+        }
+    }
 }

@@ -75,36 +75,26 @@ int main(int argc, char *argv[])
     Parser parser(tokens);
     std::cout << "Attempting to parse..." << std::endl;
 
-    while (true)
+    try
     {
-        std::unique_ptr<ExprAST> ast;
-        try
+        auto program = parser.ParseProgram();
+        if (program)
         {
-            ast = parser.Parse();
-            if (ast)
-            {
-                std::cout << "Parsed a top-level construct successfully." << std::endl;
-                ast->print();
-                std::cout << std::endl;
-            }
-            else
-            {
-                std::cout << "Parsing completed." << std::endl;
-                break;
-            }
+            std::cout << "Successfully parsed program:" << std::endl;
+            std::cout << "========================" << std::endl;
+            program->print();
+            std::cout << "========================" << std::endl;
         }
-        catch (const std::runtime_error &e)
+        else
         {
-            std::string errMsg = e.what();
-            if (errMsg.find("unknown token when expecting an expression") != std::string::npos ||
-                errMsg.find("Expected function name in prototype") != std::string::npos)
-            {
-                std::cout << "Finished parsing." << std::endl;
-                break;
-            }
-            std::cerr << "Parser Error: " << e.what() << std::endl;
+            std::cout << "Failed to parse program." << std::endl;
             return 1;
         }
+    }
+    catch (const std::runtime_error &e)
+    {
+        std::cerr << "Parser Error: " << e.what() << std::endl;
+        return 1;
     }
 
     return 0;

@@ -306,21 +306,3 @@ void test_complex_expressions()
         tf.assert_contains(tokens[6], "STL_ITERATOR:begin", "begin iterator");
     }
 }
-
-int main()
-{
-    std::cout << "🚀 Starting Lexer Unit Tests\n";
-    std::cout << "============================\n";
-
-    RUN_TEST(test_basic_tokens);
-    RUN_TEST(test_c_keywords);
-    RUN_TEST(test_stl_components);
-    RUN_TEST(test_string_literals);
-    RUN_TEST(test_comments);
-    RUN_TEST(test_preprocessor);
-    RUN_TEST(test_error_handling);
-    RUN_TEST(test_complex_expressions);
-
-    std::cout << "\n🎉 All Lexer unit tests completed!\n";
-    return 0;
-}

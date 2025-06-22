@@ -2,37 +2,65 @@
 #include <iostream>
 #include <cctype>
 #include <cstdlib>
-#include <map>
 #include <stdexcept>
+#include <map>
 
 using namespace std;
 
 // Map of operator precedence
-static map<char, int> BinopPrecedence;
+static map<string, int> BinOpPrecedence;
 
 // Constructor
 Parser::Parser(const vector<string> &tokens) : Tokens(tokens), CurrentPos(0)
 {
-    // Initialize operator precedence
-    BinopPrecedence['<'] = 10;
-    BinopPrecedence['+'] = 20;
-    BinopPrecedence['-'] = 20;
-    BinopPrecedence['*'] = 40;
-    BinopPrecedence['/'] = 40;
+    initializePrecedence();
     getNextToken(); // Initialize CurrentToken
 }
 
-// Get the precedence of the pending binary operator token.
+void Parser::initializePrecedence()
+{
+    // Initialize operator precedence (higher number = higher precedence)
+    BinOpPrecedence["||"] = 5;
+    BinOpPrecedence["&&"] = 10;
+    BinOpPrecedence["=="] = 20;
+    BinOpPrecedence["!="] = 20;
+    BinOpPrecedence["<"] = 30;
+    BinOpPrecedence["<="] = 30;
+    BinOpPrecedence[">"] = 30;
+    BinOpPrecedence[">="] = 30;
+    BinOpPrecedence["+"] = 40;
+    BinOpPrecedence["-"] = 40;
+    BinOpPrecedence["*"] = 50;
+    BinOpPrecedence["/"] = 50;
+    BinOpPrecedence["%"] = 50;
+}
+
+// Get the precedence of the pending binary operator token
 int Parser::GetTokPrecedence()
 {
-    if (!isascii(CurrentToken))
-        return -1;
+    string op = getCurrentTokenString();
+    auto it = BinOpPrecedence.find(op);
+    if (it != BinOpPrecedence.end())
+        return it->second;
+    return -1; // Not a binary operator
+}
 
-    // Make sure it's a declared binop.
-    int TokPrec = BinopPrecedence[CurrentToken];
-    if (TokPrec <= 0)
-        return -1;
-    return TokPrec;
+string Parser::getCurrentTokenString()
+{
+    if (CurrentPos > 0 && CurrentPos <= Tokens.size())
+        return stripTag(Tokens[CurrentPos - 1]);
+    return "";
+}
+
+// Helper function to strip tags from tokens
+string Parser::stripTag(const string &token)
+{
+    size_t colon_pos = token.find(':');
+    if (colon_pos != string::npos)
+    {
+        return token.substr(colon_pos + 1);
+    }
+    return token;
 }
 
 // Helper function to advance the token stream
@@ -40,74 +68,208 @@ int Parser::getNextToken()
 {
     if (CurrentPos >= Tokens.size())
     {
-        this->CurrentToken = tok_eof;
-        return this->CurrentToken;
+        CurrentToken = tok_eof;
+        return CurrentToken;
     }
 
     string token_str = Tokens[CurrentPos++];
-    int determined_tok_type;
+    string stripped_token = stripTag(token_str);
 
-    if (token_str == "def")
-        determined_tok_type = tok_def;
-    else if (token_str == "extern")
-        determined_tok_type = tok_extern;
-    else if (token_str == "if")
-        determined_tok_type = tok_if;
-    else if (token_str == "then")
-        determined_tok_type = tok_then;
-    else if (token_str == "else")
-        determined_tok_type = tok_else;
-    else if (token_str == "for")
-        determined_tok_type = tok_for;
-    else if (token_str == "in")
-        determined_tok_type = tok_in;
-    else if (token_str == "binary")
-        determined_tok_type = tok_binary;
-    else if (token_str == "unary")
-        determined_tok_type = tok_unary;
-    else if (token_str == "var")
-        determined_tok_type = tok_var;
-    else if (token_str == ";")
-        determined_tok_type = ';';
-    else if (token_str == "(")
-        determined_tok_type = '(';
-    else if (token_str == ")")
-        determined_tok_type = ')';
-    else if (token_str == ",")
-        determined_tok_type = ',';
-    else if (token_str == "+")
-        determined_tok_type = '+';
-    else if (token_str == "-")
-        determined_tok_type = '-';
-    else if (token_str == "*")
-        determined_tok_type = '*';
-    else if (token_str == "/")
-        determined_tok_type = '/';
-    else if (token_str == "<")
-        determined_tok_type = '<';
-    else if (token_str == ">")
-        determined_tok_type = '>';
-    else if (token_str == "=")
-        determined_tok_type = '=';
-    else if (isdigit(token_str[0]) || token_str[0] == '.')
+    // Keywords
+    if (stripped_token == "def")
+        CurrentToken = tok_def;
+    else if (stripped_token == "extern")
+        CurrentToken = tok_extern;
+    else if (stripped_token == "if")
+        CurrentToken = tok_if;
+    else if (stripped_token == "else")
+        CurrentToken = tok_else;
+    else if (stripped_token == "while")
+        CurrentToken = tok_while;
+    else if (stripped_token == "for")
+        CurrentToken = tok_for;
+    else if (stripped_token == "return")
+        CurrentToken = tok_return;
+    else if (stripped_token == "break")
+        CurrentToken = tok_break;
+    else if (stripped_token == "continue")
+        CurrentToken = tok_continue;
+    else if (stripped_token == "true")
+        CurrentToken = tok_true;
+    else if (stripped_token == "false")
+        CurrentToken = tok_false;
+
+    // Types
+    else if (stripped_token == "int")
+        CurrentToken = tok_int;
+    else if (stripped_token == "float")
+        CurrentToken = tok_float;
+    else if (stripped_token == "double")
+        CurrentToken = tok_double;
+    else if (stripped_token == "char")
+        CurrentToken = tok_char;
+    else if (stripped_token == "bool")
+        CurrentToken = tok_bool;
+    else if (stripped_token == "void")
+        CurrentToken = tok_void;
+    else if (stripped_token == "string")
+        CurrentToken = tok_string;
+    else if (stripped_token == "auto")
+        CurrentToken = tok_auto;
+
+    // Operators
+    else if (stripped_token == "=")
+        CurrentToken = tok_assign;
+    else if (stripped_token == "+=")
+        CurrentToken = tok_plus_assign;
+    else if (stripped_token == "-=")
+        CurrentToken = tok_minus_assign;
+    else if (stripped_token == "*=")
+        CurrentToken = tok_mult_assign;
+    else if (stripped_token == "/=")
+        CurrentToken = tok_div_assign;
+    else if (stripped_token == "%=")
+        CurrentToken = tok_mod_assign;
+    else if (stripped_token == "++")
+        CurrentToken = tok_increment;
+    else if (stripped_token == "--")
+        CurrentToken = tok_decrement;
+    else if (stripped_token == "==")
+        CurrentToken = tok_equal;
+    else if (stripped_token == "!=")
+        CurrentToken = tok_not_equal;
+    else if (stripped_token == "<=")
+        CurrentToken = tok_less_equal;
+    else if (stripped_token == ">=")
+        CurrentToken = tok_greater_equal;
+    else if (stripped_token == "&&")
+        CurrentToken = tok_logical_and;
+    else if (stripped_token == "||")
+        CurrentToken = tok_logical_or;
+    else if (stripped_token == "!")
+        CurrentToken = tok_logical_not;
+    else if (stripped_token == "->")
+        CurrentToken = tok_arrow;
+    else if (stripped_token == "::")
+        CurrentToken = tok_scope;
+
+    // Punctuation
+    else if (stripped_token == ";")
+        CurrentToken = tok_semicolon;
+    else if (stripped_token == ",")
+        CurrentToken = tok_comma;
+    else if (stripped_token == "(")
+        CurrentToken = tok_left_paren;
+    else if (stripped_token == ")")
+        CurrentToken = tok_right_paren;
+    else if (stripped_token == "{")
+        CurrentToken = tok_left_brace;
+    else if (stripped_token == "}")
+        CurrentToken = tok_right_brace;
+    else if (stripped_token == "[")
+        CurrentToken = tok_left_bracket;
+    else if (stripped_token == "]")
+        CurrentToken = tok_right_bracket;
+
+    // Single character operators
+    else if (stripped_token == "+")
+        CurrentToken = '+';
+    else if (stripped_token == "-")
+        CurrentToken = '-';
+    else if (stripped_token == "*")
+        CurrentToken = '*';
+    else if (stripped_token == "/")
+        CurrentToken = '/';
+    else if (stripped_token == "%")
+        CurrentToken = '%';
+    else if (stripped_token == "<")
+        CurrentToken = '<';
+    else if (stripped_token == ">")
+        CurrentToken = '>';
+    else if (stripped_token == "&")
+        CurrentToken = '&';
+    else if (stripped_token == "|")
+        CurrentToken = '|';
+    else if (stripped_token == "^")
+        CurrentToken = '^';
+    else if (stripped_token == "~")
+        CurrentToken = '~';
+    else if (stripped_token == "?")
+        CurrentToken = '?';
+    else if (stripped_token == ":")
+        CurrentToken = ':';
+
+    // Literals
+    else if (token_str.find("STRING_LITERAL:") == 0)
     {
-        NumVal = strtod(token_str.c_str(), nullptr); // Sets NumVal
-        IdentifierStr = "";                          // Clear IdentifierStr
-        determined_tok_type = tok_number;
+        StringVal = stripped_token;
+        CurrentToken = tok_string_literal;
     }
-    else if (isalpha(token_str[0]))
+    else if (token_str.find("CHAR_LITERAL:") == 0)
     {
-        IdentifierStr = token_str; // Sets IdentifierStr
-        determined_tok_type = tok_identifier;
+        CharVal = stripped_token[0];
+        CurrentToken = tok_char_literal;
+    }
+    else if (isdigit(stripped_token[0]) || (stripped_token[0] == '.' && stripped_token.length() > 1))
+    {
+        NumVal = strtod(stripped_token.c_str(), nullptr);
+        CurrentToken = tok_number;
+    }
+    else if (isalpha(stripped_token[0]) || stripped_token[0] == '_')
+    {
+        IdentifierStr = stripped_token;
+        CurrentToken = tok_identifier;
     }
     else
     {
-        std::cerr << "Parser::getNextToken: Unknown token string '" << token_str << "'" << std::endl;
-        determined_tok_type = tok_eof; // Treat unknown as EOF or an error token
+        cerr << "Parser::getNextToken: Unknown token '" << stripped_token << "'" << endl;
+        CurrentToken = tok_eof;
     }
 
-    this->CurrentToken = determined_tok_type;
-    return this->CurrentToken;
+    return CurrentToken;
+}
+
+DataType Parser::parseType()
+{
+    switch (CurrentToken)
+    {
+    case tok_void:
+        return DataType::VOID;
+    case tok_int:
+        return DataType::INT;
+    case tok_float:
+        return DataType::FLOAT;
+    case tok_double:
+        return DataType::DOUBLE;
+    case tok_char:
+        return DataType::CHAR;
+    case tok_bool:
+        return DataType::BOOL;
+    case tok_string:
+        return DataType::STRING;
+    case tok_auto:
+        return DataType::AUTO;
+    default:
+        return DataType::UNKNOWN;
+    }
+}
+
+bool Parser::isType(int token)
+{
+    return token == tok_void || token == tok_int || token == tok_float ||
+           token == tok_double || token == tok_char || token == tok_bool ||
+           token == tok_string || token == tok_auto;
+}
+
+bool Parser::expectToken(int expectedToken)
+{
+    if (CurrentToken != expectedToken)
+    {
+        cerr << "Expected token " << expectedToken << " but got " << CurrentToken << endl;
+        return false;
+    }
+    getNextToken();
+    return true;
 }
 
 // Parse a number expression
@@ -115,77 +277,162 @@ unique_ptr<ExprAST> Parser::ParseNumberExpr()
 {
     auto Result = make_unique<NumberExprAST>(NumVal);
     getNextToken(); // consume the number
-    return std::move(Result);
+    return move(Result);
+}
+
+// Parse a string expression
+unique_ptr<ExprAST> Parser::ParseStringExpr()
+{
+    auto Result = make_unique<StringExprAST>(StringVal);
+    getNextToken(); // consume the string
+    return move(Result);
+}
+
+// Parse a character expression
+unique_ptr<ExprAST> Parser::ParseCharExpr()
+{
+    auto Result = make_unique<CharExprAST>(CharVal);
+    getNextToken(); // consume the character
+    return move(Result);
+}
+
+// Parse a boolean expression
+unique_ptr<ExprAST> Parser::ParseBoolExpr()
+{
+    bool val = (CurrentToken == tok_true);
+    auto Result = make_unique<BoolExprAST>(val);
+    getNextToken(); // consume true/false
+    return move(Result);
 }
 
 // Parse a parenthesized expression
 unique_ptr<ExprAST> Parser::ParseParenExpr()
 {
-    getNextToken(); // eat (.
+    getNextToken(); // eat '('
     auto V = ParseExpression();
     if (!V)
         return nullptr;
 
-    if (CurrentToken != ')')
+    if (CurrentToken != tok_right_paren)
+    {
+        cerr << "Expected ')'" << endl;
         return nullptr;
-    getNextToken(); // eat ).
+    }
+    getNextToken(); // eat ')'
     return V;
 }
 
-// Parse an identifier expression
+// Parse an identifier expression (variable or function call)
 unique_ptr<ExprAST> Parser::ParseIdentifierExpr()
 {
     string IdName = IdentifierStr;
+    getNextToken(); // eat identifier
 
-    getNextToken(); // eat identifier.
-
-    if (CurrentToken != '(') // Simple variable ref.
+    if (CurrentToken != tok_left_paren) // Simple variable reference
         return make_unique<VariableExprAST>(IdName);
 
-    // Call.
-    getNextToken(); // eat (
+    // Function call
+    getNextToken(); // eat '('
     vector<unique_ptr<ExprAST>> Args;
-    if (CurrentToken != ')')
+
+    if (CurrentToken != tok_right_paren)
     {
         while (true)
         {
             if (auto Arg = ParseExpression())
-                Args.push_back(std::move(Arg));
+                Args.push_back(move(Arg));
             else
                 return nullptr;
 
-            if (CurrentToken == ')')
+            if (CurrentToken == tok_right_paren)
                 break;
 
-            if (CurrentToken != ',')
+            if (CurrentToken != tok_comma)
+            {
+                cerr << "Expected ',' in argument list" << endl;
                 return nullptr;
-            getNextToken();
+            }
+            getNextToken(); // eat ','
         }
     }
 
-    // Eat the ')'.
-    getNextToken();
+    getNextToken(); // eat ')'
+    return make_unique<CallExprAST>(IdName, move(Args));
+}
 
-    return make_unique<CallExprAST>(IdName, std::move(Args));
+// Parse unary expressions
+unique_ptr<ExprAST> Parser::ParseUnaryExpr()
+{
+    string op = getCurrentTokenString();
+
+    if (op == "!" || op == "-" || op == "+" || op == "~" || op == "++" || op == "--")
+    {
+        getNextToken(); // consume operator
+        if (auto Operand = ParseUnaryExpr())
+            return make_unique<UnaryExprAST>(op, move(Operand));
+        return nullptr;
+    }
+
+    return ParsePrimary();
 }
 
 // Parse a primary expression
 unique_ptr<ExprAST> Parser::ParsePrimary()
 {
+    unique_ptr<ExprAST> expr = nullptr;
+
     switch (CurrentToken)
     {
-    default:
-        return nullptr;
     case tok_identifier:
-        return ParseIdentifierExpr();
+        expr = ParseIdentifierExpr();
+        break;
     case tok_number:
-        return ParseNumberExpr();
-    case '(':
-        return ParseParenExpr();
+        expr = ParseNumberExpr();
+        break;
+    case tok_string_literal:
+        expr = ParseStringExpr();
+        break;
+    case tok_char_literal:
+        expr = ParseCharExpr();
+        break;
+    case tok_true:
+    case tok_false:
+        expr = ParseBoolExpr();
+        break;
+    case tok_left_paren:
+        expr = ParseParenExpr();
+        break;
+    default:
+        cerr << "Unknown token when expecting an expression" << endl;
+        return nullptr;
     }
+
+    // Handle postfix operators (++, --)
+    while (CurrentToken == tok_increment || CurrentToken == tok_decrement)
+    {
+        string op = getCurrentTokenString();
+        getNextToken(); // consume the operator
+        expr = make_unique<UnaryExprAST>(op, move(expr));
+    }
+
+    return expr;
 }
 
-// Parse a binary operator expression
+// Parse array access
+unique_ptr<ExprAST> Parser::ParseArrayAccess(unique_ptr<ExprAST> Array)
+{
+    getNextToken(); // eat '['
+    auto Index = ParseExpression();
+    if (!Index)
+        return nullptr;
+
+    if (!expectToken(tok_right_bracket))
+        return nullptr;
+
+    return make_unique<ArrayExprAST>(move(Array), move(Index));
+}
+
+// Parse binary operator RHS
 unique_ptr<ExprAST> Parser::ParseBinOpRHS(int ExprPrec, unique_ptr<ExprAST> LHS)
 {
     while (true)
@@ -195,197 +442,458 @@ unique_ptr<ExprAST> Parser::ParseBinOpRHS(int ExprPrec, unique_ptr<ExprAST> LHS)
         if (TokPrec < ExprPrec)
             return LHS;
 
-        int BinOp = CurrentToken;
+        string BinOp = getCurrentTokenString();
         getNextToken(); // eat binop
 
-        auto RHS = ParsePrimary();
+        auto RHS = ParseUnaryExpr();
         if (!RHS)
             return nullptr;
 
         int NextPrec = GetTokPrecedence();
         if (TokPrec < NextPrec)
         {
-            RHS = ParseBinOpRHS(TokPrec + 1, std::move(RHS));
+            RHS = ParseBinOpRHS(TokPrec + 1, move(RHS));
             if (!RHS)
                 return nullptr;
         }
 
-        LHS = make_unique<BinaryExprAST>(BinOp, std::move(LHS), std::move(RHS));
+        LHS = make_unique<BinaryExprAST>(BinOp, move(LHS), move(RHS));
     }
 }
 
-// Parse an expression
+// Parse expression
 unique_ptr<ExprAST> Parser::ParseExpression()
 {
-    auto LHS = ParsePrimary();
+    auto LHS = ParseUnaryExpr();
     if (!LHS)
         return nullptr;
 
-    return ParseBinOpRHS(0, std::move(LHS));
+    // Handle array access
+    if (CurrentToken == tok_left_bracket)
+    {
+        LHS = ParseArrayAccess(move(LHS));
+        if (!LHS)
+            return nullptr;
+    }
+
+    return ParseBinOpRHS(0, move(LHS));
 }
 
-// Parse a function prototype
-unique_ptr<PrototypeAST> Parser::ParsePrototype()
+// Parse assignment expression
+unique_ptr<ExprAST> Parser::ParseAssignmentExpr()
 {
-    std::cerr << "ParsePrototype: CurrentToken = " << CurrentToken << std::endl;
-    string FnName;
+    auto LHS = ParseExpression();
+    if (!LHS)
+        return nullptr;
 
-    unsigned Kind = 0; // 0 = identifier, 1 = unary, 2 = binary.
-    unsigned BinaryPrecedence = 30;
+    if (CurrentToken == tok_assign)
+    {
+        getNextToken(); // eat '='
+        auto RHS = ParseAssignmentExpr();
+        if (!RHS)
+            return nullptr;
+        return make_unique<AssignmentExprAST>(move(LHS), move(RHS));
+    }
 
+    return LHS;
+}
+
+// Parse variable declaration
+unique_ptr<StmtAST> Parser::ParseVarDeclaration()
+{
+    DataType type = parseType();
+    getNextToken(); // consume type
+
+    if (CurrentToken != tok_identifier)
+    {
+        cerr << "Expected variable name" << endl;
+        return nullptr;
+    }
+
+    string varName = IdentifierStr;
+    getNextToken(); // consume identifier
+
+    unique_ptr<ExprAST> initializer = nullptr;
+    if (CurrentToken == tok_assign)
+    {
+        getNextToken(); // eat '='
+        initializer = ParseExpression();
+        if (!initializer)
+            return nullptr;
+    }
+
+    if (!expectToken(tok_semicolon))
+        return nullptr;
+
+    return make_unique<VarDeclStmtAST>(type, varName, move(initializer));
+}
+
+// Parse expression statement
+unique_ptr<StmtAST> Parser::ParseExpressionStatement()
+{
+    auto expr = ParseAssignmentExpr();
+    if (!expr)
+        return nullptr;
+
+    if (!expectToken(tok_semicolon))
+        return nullptr;
+
+    return make_unique<ExprStmtAST>(move(expr));
+}
+
+// Parse compound statement
+unique_ptr<StmtAST> Parser::ParseCompoundStatement()
+{
+    if (!expectToken(tok_left_brace))
+        return nullptr;
+
+    vector<unique_ptr<StmtAST>> statements;
+
+    while (CurrentToken != tok_right_brace && CurrentToken != tok_eof)
+    {
+        if (auto stmt = ParseStatement())
+            statements.push_back(move(stmt));
+        else
+            return nullptr;
+    }
+
+    if (!expectToken(tok_right_brace))
+        return nullptr;
+
+    return make_unique<CompoundStmtAST>(move(statements));
+}
+
+// Parse if statement
+unique_ptr<StmtAST> Parser::ParseIfStatement()
+{
+    getNextToken(); // eat 'if'
+
+    if (!expectToken(tok_left_paren))
+        return nullptr;
+
+    auto condition = ParseExpression();
+    if (!condition)
+        return nullptr;
+
+    if (!expectToken(tok_right_paren))
+        return nullptr;
+
+    auto thenStmt = ParseStatement();
+    if (!thenStmt)
+        return nullptr;
+
+    unique_ptr<StmtAST> elseStmt = nullptr;
+    if (CurrentToken == tok_else)
+    {
+        getNextToken(); // eat 'else'
+        elseStmt = ParseStatement();
+        if (!elseStmt)
+            return nullptr;
+    }
+
+    return make_unique<IfStmtAST>(move(condition), move(thenStmt), move(elseStmt));
+}
+
+// Parse while statement
+unique_ptr<StmtAST> Parser::ParseWhileStatement()
+{
+    getNextToken(); // eat 'while'
+
+    if (!expectToken(tok_left_paren))
+        return nullptr;
+
+    auto condition = ParseExpression();
+    if (!condition)
+        return nullptr;
+
+    if (!expectToken(tok_right_paren))
+        return nullptr;
+
+    auto body = ParseStatement();
+    if (!body)
+        return nullptr;
+
+    return make_unique<WhileStmtAST>(move(condition), move(body));
+}
+
+// Parse for statement
+unique_ptr<StmtAST> Parser::ParseForStatement()
+{
+    getNextToken(); // eat 'for'
+
+    if (!expectToken(tok_left_paren))
+        return nullptr;
+
+    // Parse initialization
+    unique_ptr<StmtAST> init = nullptr;
+    if (CurrentToken != tok_semicolon)
+    {
+        if (isType(CurrentToken))
+        {
+            init = ParseVarDeclaration();
+        }
+        else
+        {
+            init = ParseExpressionStatement();
+        }
+        if (!init)
+            return nullptr;
+    }
+    else
+    {
+        getNextToken(); // eat ';'
+    }
+
+    // Parse condition
+    unique_ptr<ExprAST> condition = nullptr;
+    if (CurrentToken != tok_semicolon)
+    {
+        condition = ParseExpression();
+        if (!condition)
+            return nullptr;
+    }
+    if (!expectToken(tok_semicolon))
+        return nullptr;
+
+    // Parse update
+    unique_ptr<ExprAST> update = nullptr;
+    if (CurrentToken != tok_right_paren)
+    {
+        update = ParseExpression();
+        if (!update)
+            return nullptr;
+    }
+    if (!expectToken(tok_right_paren))
+        return nullptr;
+
+    // Parse body
+    auto body = ParseStatement();
+    if (!body)
+        return nullptr;
+
+    return make_unique<ForStmtAST>(move(init), move(condition), move(update), move(body));
+}
+
+// Parse return statement
+unique_ptr<StmtAST> Parser::ParseReturnStatement()
+{
+    getNextToken(); // eat 'return'
+
+    unique_ptr<ExprAST> value = nullptr;
+    if (CurrentToken != tok_semicolon)
+    {
+        value = ParseExpression();
+        if (!value)
+            return nullptr;
+    }
+
+    if (!expectToken(tok_semicolon))
+        return nullptr;
+
+    return make_unique<ReturnStmtAST>(move(value));
+}
+
+// Parse break statement
+unique_ptr<StmtAST> Parser::ParseBreakStatement()
+{
+    getNextToken(); // eat 'break'
+    if (!expectToken(tok_semicolon))
+        return nullptr;
+    return make_unique<BreakStmtAST>();
+}
+
+// Parse continue statement
+unique_ptr<StmtAST> Parser::ParseContinueStatement()
+{
+    getNextToken(); // eat 'continue'
+    if (!expectToken(tok_semicolon))
+        return nullptr;
+    return make_unique<ContinueStmtAST>();
+}
+
+// Parse statement
+unique_ptr<StmtAST> Parser::ParseStatement()
+{
     switch (CurrentToken)
     {
+    case tok_left_brace:
+        return ParseCompoundStatement();
+    case tok_if:
+        return ParseIfStatement();
+    case tok_while:
+        return ParseWhileStatement();
+    case tok_for:
+        return ParseForStatement();
+    case tok_return:
+        return ParseReturnStatement();
+    case tok_break:
+        return ParseBreakStatement();
+    case tok_continue:
+        return ParseContinueStatement();
     default:
-        std::cerr << "ParsePrototype: Unexpected token." << std::endl;
-        return nullptr;
-    case tok_identifier:
-        FnName = IdentifierStr;
-        Kind = 0;
-        getNextToken();
-        break;
-    case tok_unary:
-        getNextToken();
-        if (!isascii(CurrentToken))
+        if (isType(CurrentToken))
         {
-            std::cerr << "ParsePrototype: Expected ASCII character after unary." << std::endl;
-            return nullptr;
+            return ParseVarDeclaration();
         }
-        FnName = "unary";
-        FnName += (char)CurrentToken;
-        Kind = 1;
-        getNextToken();
-        break;
-    case tok_binary:
-        getNextToken();
-        if (!isascii(CurrentToken))
+        else
         {
-            std::cerr << "ParsePrototype: Expected ASCII character after binary." << std::endl;
-            return nullptr;
+            return ParseExpressionStatement();
         }
-        FnName = "binary";
-        FnName += (char)CurrentToken;
-        Kind = 2;
-        getNextToken();
-
-        if (CurrentToken == tok_number)
-        {
-            if (NumVal < 1 || NumVal > 100)
-            {
-                std::cerr << "ParsePrototype: Binary precedence must be 1..100." << std::endl;
-                return nullptr;
-            }
-            BinaryPrecedence = (unsigned)NumVal;
-            getNextToken();
-        }
-        break;
     }
+}
 
-    if (CurrentToken != '(')
+// Parse function prototype
+unique_ptr<PrototypeAST> Parser::ParsePrototype()
+{
+    DataType returnType = parseType();
+    getNextToken(); // consume return type
+
+    if (CurrentToken != tok_identifier)
     {
-        std::cerr << "ParsePrototype: Expected '(' after function name. Got: " << CurrentToken << std::endl;
+        cerr << "Expected function name in prototype" << endl;
         return nullptr;
     }
-    getNextToken(); // Consume '('. CurrentToken is now the first argument or ')'.
 
-    vector<string> ArgNames;
-    if (CurrentToken != ')')
-    { // If there are arguments
+    string functionName = IdentifierStr;
+    getNextToken(); // consume function name
+
+    if (!expectToken(tok_left_paren))
+        return nullptr;
+
+    vector<pair<DataType, string>> args;
+    while (CurrentToken != tok_right_paren)
+    {
+        if (!isType(CurrentToken))
+        {
+            cerr << "Expected parameter type" << endl;
+            return nullptr;
+        }
+
+        DataType paramType = parseType();
+        getNextToken(); // consume type
+
         if (CurrentToken != tok_identifier)
         {
-            std::cerr << "ParsePrototype: Expected identifier in argument list. Got: " << CurrentToken << std::endl;
+            cerr << "Expected parameter name" << endl;
             return nullptr;
         }
-        ArgNames.push_back(IdentifierStr);
-        getNextToken(); // Consume argument identifier.
 
-        while (CurrentToken == ',')
+        string paramName = IdentifierStr;
+        getNextToken(); // consume parameter name
+
+        args.push_back({paramType, paramName});
+
+        if (CurrentToken == tok_comma)
         {
-            getNextToken(); // Consume ','.
-            if (CurrentToken != tok_identifier)
-            {
-                std::cerr << "ParsePrototype: Expected identifier after ','. Got: " << CurrentToken << std::endl;
-                return nullptr;
-            }
-            ArgNames.push_back(IdentifierStr);
-            getNextToken(); // Consume argument identifier.
+            getNextToken(); // consume ','
+        }
+        else if (CurrentToken != tok_right_paren)
+        {
+            cerr << "Expected ',' or ')' in parameter list" << endl;
+            return nullptr;
         }
     }
 
-    if (CurrentToken != ')')
-    {
-        std::cerr << "ParsePrototype: Expected ')' to end argument list. Got: " << CurrentToken << std::endl;
+    if (!expectToken(tok_right_paren))
         return nullptr;
-    }
-    getNextToken(); // eat ')'.
 
-    if (Kind && ArgNames.size() != Kind)
-    {
-        std::cerr << "ParsePrototype: Invalid number of operands for operator." << std::endl;
-        return nullptr;
-    }
-
-    return make_unique<PrototypeAST>(FnName, std::move(ArgNames), Kind != 0,
-                                     BinaryPrecedence);
+    return make_unique<PrototypeAST>(returnType, functionName, move(args));
 }
 
-// Parse a function definition
-unique_ptr<FunctionAST> Parser::ParseDefinition()
+// Parse function definition
+unique_ptr<FunctionAST> Parser::ParseFunction()
 {
-    // When called, CurrentToken is tok_def.
-    // Consume 'def' and advance CurrentToken to the function name.
-    getNextToken();
-    // std::cerr << "ParseDefinition: After eating def. CurrentToken = " << CurrentToken << " (Identifier: " << IdentifierStr << ")" << std::endl;
-    auto Proto = ParsePrototype();
-    if (!Proto)
-    {
-        std::cerr << "ParseDefinition: Failed to parse prototype." << std::endl;
+    auto proto = ParsePrototype();
+    if (!proto)
         return nullptr;
-    }
 
-    // CurrentToken should be at the start of the body expression now
-    if (auto E = ParseExpression())
-        return make_unique<FunctionAST>(std::move(Proto), std::move(E));
-    std::cerr << "ParseDefinition: Failed to parse function body." << std::endl;
-    return nullptr;
+    auto body = ParseCompoundStatement();
+    if (!body)
+        return nullptr;
+
+    return make_unique<FunctionAST>(move(proto), move(body));
 }
 
-// Parse an external function declaration
+// Parse extern declaration
 unique_ptr<PrototypeAST> Parser::ParseExtern()
 {
-    getNextToken(); // eat extern.
+    getNextToken(); // eat 'extern'
     return ParsePrototype();
 }
 
-// Parse a top-level expression
-unique_ptr<FunctionAST> Parser::ParseTopLevelExpr()
+// Parse complete program
+unique_ptr<ProgramAST> Parser::ParseProgram()
 {
-    if (auto E = ParseExpression())
-    {
-        auto Proto = make_unique<PrototypeAST>("__anon_expr",
-                                               vector<string>());
-        return make_unique<FunctionAST>(std::move(Proto), std::move(E));
-    }
-    return nullptr;
-}
+    auto program = make_unique<ProgramAST>();
 
-// Main entry point for parsing
-unique_ptr<ExprAST> Parser::Parse()
-{
-    while (true)
+    while (CurrentToken != tok_eof)
     {
-        switch (CurrentToken)
+        unique_ptr<StmtAST> stmt = nullptr;
+
+        if (CurrentToken == tok_extern)
         {
-        case tok_eof:
+            auto proto = ParseExtern();
+            if (!proto)
+                return nullptr;
+            if (!expectToken(tok_semicolon))
+                return nullptr;
+            // Convert prototype to statement (you might want a separate ExternStmt)
+            continue;
+        }
+        else if (isType(CurrentToken))
+        {
+            // Could be function definition or variable declaration
+            // Look ahead to determine which
+            size_t savedPos = CurrentPos - 1;
+            DataType type = parseType();
+            getNextToken(); // consume type
+
+            if (CurrentToken == tok_identifier)
+            {
+                getNextToken(); // consume identifier
+                if (CurrentToken == tok_left_paren)
+                {
+                    // Function definition
+                    CurrentPos = savedPos;
+                    getNextToken(); // restore position
+                    stmt = ParseFunction();
+                }
+                else
+                {
+                    // Variable declaration
+                    CurrentPos = savedPos;
+                    getNextToken(); // restore position
+                    stmt = ParseVarDeclaration();
+                }
+            }
+        }
+        else
+        {
+            stmt = ParseStatement();
+        }
+
+        if (stmt)
+        {
+            program->addStatement(move(stmt));
+        }
+        else
+        {
+            cerr << "Failed to parse statement" << endl;
             return nullptr;
-        case ';': // ignore top-level semicolons.
-            getNextToken();
-            break;
-        case tok_def:
-            return ParseDefinition();
-        case tok_extern:
-            return ParseExtern();
-        default:
-            return ParseTopLevelExpr();
         }
     }
+
+    return program;
+}
+
+// Parse single statement (for testing)
+unique_ptr<StmtAST> Parser::ParseSingleStatement()
+{
+    return ParseStatement();
+}
+
+// Parse single expression (for testing)
+unique_ptr<ExprAST> Parser::ParseSingleExpression()
+{
+    return ParseExpression();
 }

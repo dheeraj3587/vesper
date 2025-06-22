@@ -1,5 +1,6 @@
 #include "test_framework.h"
 #include "Parser.h"
+#include "Lexer.h"
 #include "AST.h"
 #include <iostream>
 #include <vector>
@@ -10,9 +11,11 @@ void test_basic_expressions()
 
     // Test number expressions
     {
-        std::vector<std::string> tokens = {"42"};
+        std::string code = "42;";
+        Lexer lexer(code);
+        auto tokens = lexer.tokenize();
         Parser parser(tokens);
-        auto ast = parser.Parse();
+        auto ast = parser.ParseProgram();
         tf.assert_true(ast != nullptr, "Number expression parsed successfully");
         if (ast)
         {
@@ -23,9 +26,11 @@ void test_basic_expressions()
 
     // Test variable expressions
     {
-        std::vector<std::string> tokens = {"x"};
+        std::string code = "x;";
+        Lexer lexer(code);
+        auto tokens = lexer.tokenize();
         Parser parser(tokens);
-        auto ast = parser.Parse();
+        auto ast = parser.ParseProgram();
         tf.assert_true(ast != nullptr, "Variable expression parsed successfully");
         if (ast)
         {
@@ -36,9 +41,11 @@ void test_basic_expressions()
 
     // Test binary expressions
     {
-        std::vector<std::string> tokens = {"1", "+", "2"};
+        std::string code = "1 + 2;";
+        Lexer lexer(code);
+        auto tokens = lexer.tokenize();
         Parser parser(tokens);
-        auto ast = parser.Parse();
+        auto ast = parser.ParseProgram();
         tf.assert_true(ast != nullptr, "Binary expression parsed successfully");
         if (ast)
         {
@@ -49,9 +56,11 @@ void test_basic_expressions()
 
     // Test parenthesized expressions
     {
-        std::vector<std::string> tokens = {"(", "a", "+", "b", ")"};
+        std::string code = "(a + b);";
+        Lexer lexer(code);
+        auto tokens = lexer.tokenize();
         Parser parser(tokens);
-        auto ast = parser.Parse();
+        auto ast = parser.ParseProgram();
         tf.assert_true(ast != nullptr, "Parenthesized expression parsed successfully");
         if (ast)
         {
@@ -67,9 +76,11 @@ void test_operator_precedence()
 
     // Test multiplication before addition
     {
-        std::vector<std::string> tokens = {"1", "+", "2", "*", "3"};
+        std::string code = "1 + 2 * 3;";
+        Lexer lexer(code);
+        auto tokens = lexer.tokenize();
         Parser parser(tokens);
-        auto ast = parser.Parse();
+        auto ast = parser.ParseProgram();
         tf.assert_true(ast != nullptr, "Operator precedence parsed correctly");
         if (ast)
         {
@@ -80,9 +91,11 @@ void test_operator_precedence()
 
     // Test division before subtraction
     {
-        std::vector<std::string> tokens = {"10", "-", "6", "/", "2"};
+        std::string code = "10 - 6 / 2;";
+        Lexer lexer(code);
+        auto tokens = lexer.tokenize();
         Parser parser(tokens);
-        auto ast = parser.Parse();
+        auto ast = parser.ParseProgram();
         tf.assert_true(ast != nullptr, "Division precedence parsed correctly");
         if (ast)
         {
@@ -93,9 +106,11 @@ void test_operator_precedence()
 
     // Test complex precedence
     {
-        std::vector<std::string> tokens = {"a", "+", "b", "*", "c", "-", "d", "/", "e"};
+        std::string code = "a + b * c - d / e;";
+        Lexer lexer(code);
+        auto tokens = lexer.tokenize();
         Parser parser(tokens);
-        auto ast = parser.Parse();
+        auto ast = parser.ParseProgram();
         tf.assert_true(ast != nullptr, "Complex operator precedence parsed correctly");
         if (ast)
         {
@@ -111,9 +126,11 @@ void test_function_calls()
 
     // Test simple function call
     {
-        std::vector<std::string> tokens = {"foo", "(", ")"};
+        std::string code = "foo();";
+        Lexer lexer(code);
+        auto tokens = lexer.tokenize();
         Parser parser(tokens);
-        auto ast = parser.Parse();
+        auto ast = parser.ParseProgram();
         tf.assert_true(ast != nullptr, "Empty function call parsed successfully");
         if (ast)
         {
@@ -124,9 +141,11 @@ void test_function_calls()
 
     // Test function call with arguments
     {
-        std::vector<std::string> tokens = {"bar", "(", "x", ",", "y", ")"};
+        std::string code = "bar(x, y);";
+        Lexer lexer(code);
+        auto tokens = lexer.tokenize();
         Parser parser(tokens);
-        auto ast = parser.Parse();
+        auto ast = parser.ParseProgram();
         tf.assert_true(ast != nullptr, "Function call with arguments parsed successfully");
         if (ast)
         {
@@ -137,9 +156,11 @@ void test_function_calls()
 
     // Test nested function calls
     {
-        std::vector<std::string> tokens = {"outer", "(", "inner", "(", "arg", ")", ")"};
+        std::string code = "outer(inner(arg));";
+        Lexer lexer(code);
+        auto tokens = lexer.tokenize();
         Parser parser(tokens);
-        auto ast = parser.Parse();
+        auto ast = parser.ParseProgram();
         tf.assert_true(ast != nullptr, "Nested function calls parsed successfully");
         if (ast)
         {
@@ -149,46 +170,17 @@ void test_function_calls()
     }
 }
 
-void test_kaleidoscope_keywords()
+void test_variable_declarations()
 {
-    TestFramework tf("Kaleidoscope Keywords");
-
-    // Test function definition
-    {
-        std::vector<std::string> tokens = {"def", "average", "(", "x", ",", "y", ")", "(", "x", "+", "y", ")", "/", "2.0"};
-        Parser parser(tokens);
-        auto ast = parser.Parse();
-        tf.assert_true(ast != nullptr, "Function definition parsed successfully");
-        if (ast)
-        {
-            ast->print();
-            std::cout << std::endl;
-        }
-    }
-
-    // Test external declaration
-    {
-        std::vector<std::string> tokens = {"extern", "sin", "(", "x", ")"};
-        Parser parser(tokens);
-        auto ast = parser.Parse();
-        tf.assert_true(ast != nullptr, "External declaration parsed successfully");
-        if (ast)
-        {
-            ast->print();
-            std::cout << std::endl;
-        }
-    }
-}
-
-void test_c_keywords()
-{
-    TestFramework tf("C Keywords");
+    TestFramework tf("Variable Declarations");
 
     // Test C-style variable declaration
     {
-        std::vector<std::string> tokens = {"KEYWORD:int", "x", "PUNCTUATOR:=", "NUMBER:42", "PUNCTUATOR:;"};
+        std::string code = "int x = 42;";
+        Lexer lexer(code);
+        auto tokens = lexer.tokenize();
         Parser parser(tokens);
-        auto ast = parser.Parse();
+        auto ast = parser.ParseProgram();
         tf.assert_true(ast != nullptr, "C-style variable declaration parsed");
         if (ast)
         {
@@ -197,12 +189,14 @@ void test_c_keywords()
         }
     }
 
-    // Test C-style function declaration
+    // Test multiple variable declarations
     {
-        std::vector<std::string> tokens = {"KEYWORD:int", "main", "PUNCTUATOR:(", "PUNCTUATOR:)", "PUNCTUATOR:{"};
+        std::string code = "int x = 1; float y = 3.14;";
+        Lexer lexer(code);
+        auto tokens = lexer.tokenize();
         Parser parser(tokens);
-        auto ast = parser.Parse();
-        tf.assert_true(ast != nullptr, "C-style function declaration parsed");
+        auto ast = parser.ParseProgram();
+        tf.assert_true(ast != nullptr, "Multiple variable declarations parsed");
         if (ast)
         {
             ast->print();
@@ -211,16 +205,18 @@ void test_c_keywords()
     }
 }
 
-void test_stl_components()
+void test_control_flow()
 {
-    TestFramework tf("STL Components");
+    TestFramework tf("Control Flow");
 
-    // Test STL container declaration
+    // Test if statement
     {
-        std::vector<std::string> tokens = {"std", "OPERATOR:::", "STL_CONTAINER:vector", "PUNCTUATOR:<", "KEYWORD:int", "PUNCTUATOR:>", "numbers"};
+        std::string code = "if (x > 0) { y = 1; }";
+        Lexer lexer(code);
+        auto tokens = lexer.tokenize();
         Parser parser(tokens);
-        auto ast = parser.Parse();
-        tf.assert_true(ast != nullptr, "STL container declaration parsed");
+        auto ast = parser.ParseProgram();
+        tf.assert_true(ast != nullptr, "If statement parsed successfully");
         if (ast)
         {
             ast->print();
@@ -228,12 +224,29 @@ void test_stl_components()
         }
     }
 
-    // Test STL algorithm call
+    // Test while loop
     {
-        std::vector<std::string> tokens = {"std", "OPERATOR:::", "STL_ALGORITHM:sort", "PUNCTUATOR:(", "vec", "PUNCTUATOR:.", "STL_ITERATOR:begin", "PUNCTUATOR:(", "PUNCTUATOR:)", "PUNCTUATOR:,"};
+        std::string code = "while (x > 0) { x = x - 1; }";
+        Lexer lexer(code);
+        auto tokens = lexer.tokenize();
         Parser parser(tokens);
-        auto ast = parser.Parse();
-        tf.assert_true(ast != nullptr, "STL algorithm call parsed");
+        auto ast = parser.ParseProgram();
+        tf.assert_true(ast != nullptr, "While loop parsed successfully");
+        if (ast)
+        {
+            ast->print();
+            std::cout << std::endl;
+        }
+    }
+
+    // Test for loop
+    {
+        std::string code = "for (int i = 0; i < 10; i++) { result = result + i; }";
+        Lexer lexer(code);
+        auto tokens = lexer.tokenize();
+        Parser parser(tokens);
+        auto ast = parser.ParseProgram();
+        tf.assert_true(ast != nullptr, "For loop parsed successfully");
         if (ast)
         {
             ast->print();
@@ -242,16 +255,18 @@ void test_stl_components()
     }
 }
 
-void test_complex_expressions()
+void test_functions()
 {
-    TestFramework tf("Complex Expressions");
+    TestFramework tf("Functions");
 
-    // Test complex arithmetic expression
+    // Test function definition
     {
-        std::vector<std::string> tokens = {"(", "a", "+", "b", ")", "*", "(", "c", "-", "d", ")", "/", "e"};
+        std::string code = "int add(int a, int b) { return a + b; }";
+        Lexer lexer(code);
+        auto tokens = lexer.tokenize();
         Parser parser(tokens);
-        auto ast = parser.Parse();
-        tf.assert_true(ast != nullptr, "Complex arithmetic expression parsed");
+        auto ast = parser.ParseProgram();
+        tf.assert_true(ast != nullptr, "Function definition parsed successfully");
         if (ast)
         {
             ast->print();
@@ -259,12 +274,14 @@ void test_complex_expressions()
         }
     }
 
-    // Test function call in expression
+    // Test function call
     {
-        std::vector<std::string> tokens = {"foo", "PUNCTUATOR:(", "x", "PUNCTUATOR:)", "+", "bar", "PUNCTUATOR:(", "y", "PUNCTUATOR:)"};
+        std::string code = "int result = add(x, y);";
+        Lexer lexer(code);
+        auto tokens = lexer.tokenize();
         Parser parser(tokens);
-        auto ast = parser.Parse();
-        tf.assert_true(ast != nullptr, "Function calls in expression parsed");
+        auto ast = parser.ParseProgram();
+        tf.assert_true(ast != nullptr, "Function call parsed successfully");
         if (ast)
         {
             ast->print();
@@ -273,112 +290,54 @@ void test_complex_expressions()
     }
 }
 
-void test_error_handling()
+void test_parser_error_handling()
 {
     TestFramework tf("Error Handling");
 
-    // Test missing closing parenthesis
+    // Test missing semicolon
     {
-        std::vector<std::string> tokens = {"(", "1", "+", "2"};
+        std::string code = "int x = 42";
+        Lexer lexer(code);
+        auto tokens = lexer.tokenize();
         Parser parser(tokens);
-        auto ast = parser.Parse();
-        tf.assert_true(ast == nullptr, "Missing closing parenthesis handled gracefully");
+        auto ast = parser.ParseProgram();
+        tf.assert_true(ast == nullptr, "Missing semicolon should fail");
     }
 
-    // Test invalid function call
+    // Test invalid expression
     {
-        std::vector<std::string> tokens = {"foo", "1", "2"}; // Missing parentheses
+        std::string code = "int x = ;";
+        Lexer lexer(code);
+        auto tokens = lexer.tokenize();
         Parser parser(tokens);
-        auto ast = parser.Parse();
-        tf.assert_true(ast != nullptr, "Invalid function call handled gracefully");
-    }
-
-    // Test empty input
-    {
-        std::vector<std::string> tokens = {};
-        Parser parser(tokens);
-        auto ast = parser.Parse();
-        tf.assert_true(ast == nullptr, "Empty input handled correctly");
+        auto ast = parser.ParseProgram();
+        tf.assert_true(ast == nullptr, "Invalid expression should fail");
     }
 }
 
-void test_multiple_statements()
+void test_complex_program()
 {
-    TestFramework tf("Multiple Statements");
+    TestFramework tf("Complex Program");
 
-    // Test multiple expressions
+    // Test a complete program with multiple features
     {
-        std::vector<std::string> tokens = {"1", "+", "2", "PUNCTUATOR:;", "3", "*", "4", "PUNCTUATOR:;"};
+        std::string code = R"(
+            int x = 5;
+            float y = 3.14;
+            if (x > 0) {
+                y = x * 2;
+            }
+            int result = add(x, y);
+        )";
+        Lexer lexer(code);
+        auto tokens = lexer.tokenize();
         Parser parser(tokens);
-
-        auto ast1 = parser.Parse();
-        tf.assert_true(ast1 != nullptr, "First statement parsed");
-        if (ast1)
+        auto ast = parser.ParseProgram();
+        tf.assert_true(ast != nullptr, "Complex program parsed successfully");
+        if (ast)
         {
-            ast1->print();
-            std::cout << std::endl;
-        }
-
-        auto ast2 = parser.Parse();
-        tf.assert_true(ast2 != nullptr, "Second statement parsed");
-        if (ast2)
-        {
-            ast2->print();
+            ast->print();
             std::cout << std::endl;
         }
     }
-}
-
-void test_ast_structure()
-{
-    TestFramework tf("AST Structure");
-
-    // Test AST node types
-    {
-        std::vector<std::string> tokens = {"NUMBER:42"};
-        Parser parser(tokens);
-        auto ast = parser.Parse();
-        tf.assert_true(ast != nullptr, "NumberExprAST created");
-    }
-
-    {
-        std::vector<std::string> tokens = {"variable"};
-        Parser parser(tokens);
-        auto ast = parser.Parse();
-        tf.assert_true(ast != nullptr, "VariableExprAST created");
-    }
-
-    {
-        std::vector<std::string> tokens = {"1", "+", "2"};
-        Parser parser(tokens);
-        auto ast = parser.Parse();
-        tf.assert_true(ast != nullptr, "BinaryExprAST created");
-    }
-
-    {
-        std::vector<std::string> tokens = {"func", "PUNCTUATOR:(", "arg", "PUNCTUATOR:)"};
-        Parser parser(tokens);
-        auto ast = parser.Parse();
-        tf.assert_true(ast != nullptr, "CallExprAST created");
-    }
-}
-
-int main()
-{
-    std::cout << "🚀 Starting Parser Unit Tests\n";
-    std::cout << "=============================\n";
-
-    RUN_TEST(test_basic_expressions);
-    RUN_TEST(test_operator_precedence);
-    RUN_TEST(test_function_calls);
-    RUN_TEST(test_kaleidoscope_keywords);
-    RUN_TEST(test_c_keywords);
-    RUN_TEST(test_stl_components);
-    RUN_TEST(test_complex_expressions);
-    RUN_TEST(test_error_handling);
-    RUN_TEST(test_multiple_statements);
-    RUN_TEST(test_ast_structure);
-
-    std::cout << "\n🎉 All Parser unit tests completed!\n";
-    return 0;
 }
