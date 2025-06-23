@@ -1,0 +1,51 @@
+# Build artifacts
+build/
+*.o
+*.asm
+*.exe
+*.out
+
+# Generated outputs
+output
+output.*
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Debug files
+*.dSYM/
+*.pdb
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Language specific
+*.gch
+*.pch
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+
+# Test outputs
+tests/output/
+tests/results/
+
+# Documentation builds
+docs/build/
+docs/_build/
+
+# Backup files
+*.bak
+*.backup 

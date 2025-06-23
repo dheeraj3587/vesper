@@ -1,0 +1,18 @@
+// C-style test for Vesper compiler
+int x = 10;
+int y = 20;
+int average = (x + y) / 2;
+
+// Test control flow
+if (average > 10) {
+    x = average * 2;
+}
+
+// Test loops
+while (y > 0) {
+    y = y - 1;
+}
+
+for (int i = 0; i < 5; i = i + 1) {
+    x = x + i;
+} 

@@ -1,0 +1,7 @@
+// Simple variable test file
+// Tests variable declarations and basic arithmetic
+
+int x = 5;
+int y = 10;
+int result = x + y;
+result = result * 2; 

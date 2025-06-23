@@ -776,13 +776,48 @@ unique_ptr<StmtAST> Parser::ParseForStatement()
     unique_ptr<StmtAST> init = nullptr;
     if (CurrentToken != tok_semicolon)
     {
-        init = ParseStatement(); // Can be VarDecl or ExprStmt
+        // Special handling for init part - can be variable declaration or expression
+        if (isType(CurrentToken))
+        {
+            // Variable declaration in for loop - parse manually without consuming semicolon
+            auto type = parseType();
+            getNextToken(); // consume type
+
+            if (CurrentToken != tok_identifier)
+            {
+                cerr << "Expected identifier after type in for loop init" << endl;
+                return nullptr;
+            }
+            std::string varName = IdentifierStr;
+            getNextToken(); // consume identifier
+
+            std::unique_ptr<ExprAST> initializer = nullptr;
+            if (CurrentToken == tok_assign)
+            {
+                getNextToken(); // eat '='
+                initializer = ParseExpression();
+                if (!initializer)
+                    return nullptr;
+            }
+
+            // Create variable declaration with single variable
+            std::vector<std::pair<std::string, std::unique_ptr<ExprAST>>> vars;
+            vars.emplace_back(varName, std::move(initializer));
+            init = make_unique<VarDeclStmtAST>(type, std::move(vars));
+        }
+        else
+        {
+            // Expression statement - use assignment expression to handle assignments
+            auto expr = ParseAssignmentExpr();
+            if (!expr)
+                return nullptr;
+            init = make_unique<ExprStmtAST>(std::move(expr));
+        }
     }
-    else
-    {
-        if (!expectToken(tok_semicolon))
-            return nullptr;
-    }
+
+    // Consume the semicolon after init
+    if (!expectToken(tok_semicolon))
+        return nullptr;
 
     unique_ptr<ExprAST> condition = nullptr;
     if (CurrentToken != tok_semicolon)
@@ -797,7 +832,8 @@ unique_ptr<StmtAST> Parser::ParseForStatement()
     unique_ptr<ExprAST> update = nullptr;
     if (CurrentToken != tok_right_paren)
     {
-        update = ParseExpression();
+        // Use assignment expression for update to handle assignments like i = i + 1
+        update = ParseAssignmentExpr();
         if (!update)
             return nullptr;
     }
@@ -1088,9 +1124,19 @@ unique_ptr<ProgramAST> Parser::ParseProgram()
                 program->addStatement(std::move(varDecl));
             }
         }
+        else if (CurrentToken == tok_if || CurrentToken == tok_while || CurrentToken == tok_for ||
+                 CurrentToken == tok_return || CurrentToken == tok_break || CurrentToken == tok_continue ||
+                 CurrentToken == tok_left_brace)
+        {
+            // Handle control flow statements and compound statements
+            auto stmt = ParseStatement();
+            if (!stmt)
+                return nullptr;
+            program->addStatement(std::move(stmt));
+        }
         else
         {
-            // Could be a top-level expression for Kaleidoscope
+            // Could be a top-level expression for Kaleidoscope or assignment
             auto stmt = ParseExpressionStatement();
             if (!stmt)
                 return nullptr;
