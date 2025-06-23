@@ -5,6 +5,7 @@
 #include "Lexer.h"
 #include "Parser.h"
 #include "AST.h"
+#include "CodeGen.h"
 
 // Helper to get current token from parser if possible, or from token list
 // This is a bit of a hack; ideally, the parser would expose its current token or position.
@@ -84,6 +85,15 @@ int main(int argc, char *argv[])
             std::cout << "========================" << std::endl;
             program->print();
             std::cout << "========================" << std::endl;
+
+            // Backend: Generate assembly
+            CodeGen codegen;
+            codegen.generateAssembly(program.get());
+            std::string asmCode = codegen.getAssembly();
+            std::cout << "\nGenerated Assembly:\n"
+                      << asmCode << std::endl;
+            codegen.writeToFile("output.asm");
+            std::cout << "Assembly written to output.asm" << std::endl;
         }
         else
         {

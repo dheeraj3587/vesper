@@ -1,9 +1,9 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra -g -Iinclude
 TARGET = build/vesper
-SOURCES = src/main.cpp src/Lexer.cpp src/Parser.cpp
+SOURCES = src/main.cpp src/Lexer.cpp src/Parser.cpp src/CodeGen.cpp
 OBJECTS = $(SOURCES:src/%.cpp=build/obj/%.o)
-HEADERS = include/Lexer.h include/Parser.h include/AST.h
+HEADERS = include/Lexer.h include/Parser.h include/AST.h include/CodeGen.h
 
 # Test files
 TEST_UNIT_SOURCES = tests/unit/run_all_tests.cpp tests/unit/test_lexer.cpp tests/unit/test_parser.cpp tests/unit/test_ast.cpp

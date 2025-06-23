@@ -11,6 +11,7 @@ using namespace std;
 // Forward declarations
 class ExprAST;
 class StmtAST;
+class CodeGen;
 
 // Type system
 enum class DataType
@@ -32,6 +33,7 @@ class ExprAST
 public:
     virtual ~ExprAST() = default;
     virtual void print() const = 0;
+    virtual void codegen(CodeGen &gen) const = 0;
 };
 
 // Base class for all statement nodes
@@ -40,6 +42,7 @@ class StmtAST
 public:
     virtual ~StmtAST() = default;
     virtual void print() const = 0;
+    virtual void codegen(CodeGen &gen) const = 0;
 };
 
 // Expression class for numeric literals like "1.0".
@@ -50,6 +53,7 @@ class NumberExprAST : public ExprAST
 public:
     NumberExprAST(double Val) : Val(Val) {}
     void print() const override { std::cout << Val; }
+    void codegen(CodeGen &gen) const override;
     double getValue() const { return Val; }
 };
 
@@ -61,6 +65,7 @@ class StringExprAST : public ExprAST
 public:
     StringExprAST(const string &Val) : Val(Val) {}
     void print() const override { std::cout << "\"" << Val << "\""; }
+    void codegen(CodeGen &gen) const override;
     const string &getValue() const { return Val; }
 };
 
@@ -72,6 +77,7 @@ class CharExprAST : public ExprAST
 public:
     CharExprAST(char Val) : Val(Val) {}
     void print() const override { std::cout << "'" << Val << "'"; }
+    void codegen(CodeGen &gen) const override;
     char getValue() const { return Val; }
 };
 
@@ -83,6 +89,7 @@ class BoolExprAST : public ExprAST
 public:
     BoolExprAST(bool Val) : Val(Val) {}
     void print() const override { std::cout << (Val ? "true" : "false"); }
+    void codegen(CodeGen &gen) const override;
     bool getValue() const { return Val; }
 };
 
@@ -94,6 +101,7 @@ class VariableExprAST : public ExprAST
 public:
     VariableExprAST(const string &Name) : Name(Name) {}
     void print() const override { std::cout << Name; }
+    void codegen(CodeGen &gen) const override;
     const string &getName() const { return Name; }
 };
 
@@ -115,7 +123,10 @@ public:
         RHS->print();
         std::cout << ")";
     }
+    void codegen(CodeGen &gen) const override;
     const string &getOp() const { return Op; }
+    const ExprAST *getLHS() const { return LHS.get(); }
+    const ExprAST *getRHS() const { return RHS.get(); }
 };
 
 // Expression class for unary operators
@@ -132,6 +143,7 @@ public:
         std::cout << Op;
         Operand->print();
     }
+    void codegen(CodeGen &gen) const override;
 };
 
 // Expression class for function calls.
@@ -155,6 +167,7 @@ public:
         }
         std::cout << ")";
     }
+    void codegen(CodeGen &gen) const override;
 };
 
 // Expression class for array access
@@ -173,6 +186,7 @@ public:
         Index->print();
         std::cout << "]";
     }
+    void codegen(CodeGen &gen) const override;
 };
 
 // Expression class for assignment
@@ -190,6 +204,7 @@ public:
         std::cout << " = ";
         RHS->print();
     }
+    void codegen(CodeGen &gen) const override;
 };
 
 // Variable declaration statement
@@ -219,6 +234,7 @@ public:
     }
     DataType getVarType() const { return Type; }
     const std::vector<std::pair<std::string, std::unique_ptr<ExprAST>>> &getVars() const { return Vars; }
+    void codegen(CodeGen &gen) const override;
 };
 
 // Expression statement (expression followed by semicolon)
@@ -233,6 +249,7 @@ public:
         Expr->print();
         std::cout << ";";
     }
+    void codegen(CodeGen &gen) const override;
 };
 
 // Compound statement (block of statements)
@@ -255,6 +272,7 @@ public:
         std::cout << "}";
     }
     void addStatement(unique_ptr<StmtAST> stmt) { Statements.push_back(std::move(stmt)); }
+    void codegen(CodeGen &gen) const override;
 };
 
 // If statement
@@ -279,6 +297,7 @@ public:
             ElseStmt->print();
         }
     }
+    void codegen(CodeGen &gen) const override;
 };
 
 // While loop statement
@@ -297,6 +316,7 @@ public:
         std::cout << ") ";
         Body->print();
     }
+    void codegen(CodeGen &gen) const override;
 };
 
 // For loop statement
@@ -326,6 +346,7 @@ public:
         std::cout << ") ";
         Body->print();
     }
+    void codegen(CodeGen &gen) const override;
 };
 
 // Return statement
@@ -344,6 +365,7 @@ public:
             Value->print();
         }
     }
+    void codegen(CodeGen &gen) const override;
 };
 
 // Break statement
@@ -351,6 +373,7 @@ class BreakStmtAST : public StmtAST
 {
 public:
     void print() const override { std::cout << "break"; }
+    void codegen(CodeGen &gen) const override;
 };
 
 // Continue statement
@@ -358,6 +381,7 @@ class ContinueStmtAST : public StmtAST
 {
 public:
     void print() const override { std::cout << "continue"; }
+    void codegen(CodeGen &gen) const override;
 };
 
 // This class represents the "prototype" for a function,
@@ -391,6 +415,7 @@ public:
     const vector<pair<DataType, string>> &getArgs() const { return Args; }
     bool isOperator() const { return IsOperator; }
     unsigned getPrecedence() const { return Precedence; }
+    void codegen(CodeGen &gen) const override;
 };
 
 // This class represents a function definition itself.
@@ -408,6 +433,7 @@ public:
         std::cout << " ";
         Body->print();
     }
+    void codegen(CodeGen &gen) const override;
 };
 
 // Program AST - top level container
@@ -442,6 +468,7 @@ public:
             std::cout << std::endl;
         }
     }
+    void codegen(CodeGen &gen) const;
 };
 
 /// ScopeExprAST - Expression class for scope resolution, e.g. `std::vector`
@@ -459,6 +486,7 @@ public:
         Base->print();
         std::cout << "::" << Member;
     }
+    void codegen(CodeGen &gen) const override;
 };
 
 #endif // AST_H
