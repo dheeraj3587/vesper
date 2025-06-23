@@ -196,21 +196,29 @@ public:
 class VarDeclStmtAST : public StmtAST
 {
     DataType Type;
-    string Name;
-    unique_ptr<ExprAST> Initializer;
+    std::vector<std::pair<std::string, std::unique_ptr<ExprAST>>> Vars;
 
 public:
-    VarDeclStmtAST(DataType Type, const string &Name, unique_ptr<ExprAST> Initializer = nullptr)
-        : Type(Type), Name(Name), Initializer(std::move(Initializer)) {}
+    VarDeclStmtAST(DataType Type, std::vector<std::pair<std::string, std::unique_ptr<ExprAST>>> Vars)
+        : Type(Type), Vars(std::move(Vars)) {}
     void print() const override
     {
-        std::cout << "var " << Name;
-        if (Initializer)
+        std::cout << "var ";
+        for (size_t i = 0; i < Vars.size(); ++i)
         {
-            std::cout << " = ";
-            Initializer->print();
+            std::cout << Vars[i].first;
+            if (Vars[i].second)
+            {
+                std::cout << " = ";
+                Vars[i].second->print();
+            }
+            if (i + 1 < Vars.size())
+                std::cout << ", ";
         }
+        std::cout << ";";
     }
+    DataType getVarType() const { return Type; }
+    const std::vector<std::pair<std::string, std::unique_ptr<ExprAST>>> &getVars() const { return Vars; }
 };
 
 // Expression statement (expression followed by semicolon)
@@ -378,8 +386,11 @@ public:
         }
         std::cout << ")";
     }
+    DataType getReturnType() const { return ReturnType; }
     const string &getName() const { return Name; }
     const vector<pair<DataType, string>> &getArgs() const { return Args; }
+    bool isOperator() const { return IsOperator; }
+    unsigned getPrecedence() const { return Precedence; }
 };
 
 // This class represents a function definition itself.
@@ -403,19 +414,51 @@ public:
 class ProgramAST
 {
     vector<unique_ptr<StmtAST>> Statements;
+    vector<unique_ptr<FunctionAST>> Functions;
+    vector<unique_ptr<PrototypeAST>> Externs;
 
 public:
-    ProgramAST(vector<unique_ptr<StmtAST>> Statements = {}) : Statements(std::move(Statements)) {}
+    ProgramAST() = default;
+
     void addStatement(unique_ptr<StmtAST> stmt) { Statements.push_back(std::move(stmt)); }
+    void addFunction(unique_ptr<FunctionAST> func) { Functions.push_back(std::move(func)); }
+    void addExtern(unique_ptr<PrototypeAST> ext) { Externs.push_back(std::move(ext)); }
+
     void print() const
     {
+        for (const auto &ext : Externs)
+        {
+            ext->print();
+            std::cout << ";" << std::endl;
+        }
+        for (const auto &func : Functions)
+        {
+            func->print();
+            std::cout << std::endl;
+        }
         for (const auto &stmt : Statements)
         {
             stmt->print();
             std::cout << std::endl;
         }
     }
-    const vector<unique_ptr<StmtAST>> &getStatements() const { return Statements; }
+};
+
+/// ScopeExprAST - Expression class for scope resolution, e.g. `std::vector`
+class ScopeExprAST : public ExprAST
+{
+    std::unique_ptr<ExprAST> Base;
+    std::string Member;
+
+public:
+    ScopeExprAST(std::unique_ptr<ExprAST> Base, const std::string &Member)
+        : Base(std::move(Base)), Member(Member) {}
+
+    void print() const override
+    {
+        Base->print();
+        std::cout << "::" << Member;
+    }
 };
 
 #endif // AST_H

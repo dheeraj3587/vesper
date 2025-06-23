@@ -2,6 +2,7 @@
 #include <cctype>
 #include <stdexcept>
 #include <iostream>
+#include <algorithm>
 
 // Static member initialization
 std::unordered_set<std::string> Lexer::c_keywords;
@@ -12,7 +13,7 @@ std::unordered_set<std::string> Lexer::stl_utilities;
 std::unordered_set<std::string> Lexer::stl_string_operations;
 std::unordered_set<std::string> Lexer::stl_io_operations;
 std::unordered_set<std::string> Lexer::stl_memory_management;
-std::unordered_set<std::string> Lexer::multi_char_operators;
+std::vector<std::string> Lexer::multi_char_operators;
 bool Lexer::keywords_initialized = false;
 
 Lexer::Lexer(const std::string &source)
@@ -51,7 +52,7 @@ void Lexer::initializeKeywords()
         "sort", "stable_sort", "partial_sort", "nth_element", "is_sorted", "is_sorted_until",
         "find", "find_if", "find_if_not", "find_end", "find_first_of", "adjacent_find",
         "count", "count_if", "mismatch", "equal", "is_permutation", "search", "search_n",
-        "copy", "copy_if", "copy_n", "copy_backward", "move", "move_backward", "swap",
+        "copy", "copy_if", "copy_n", "copy_backward", "move_backward", "swap",
         "swap_ranges", "iter_swap", "transform", "replace", "replace_if", "replace_copy",
         "replace_copy_if", "fill", "fill_n", "generate", "generate_n", "remove", "remove_if",
         "remove_copy", "remove_copy_if", "unique", "unique_copy", "reverse", "reverse_copy",
@@ -83,11 +84,11 @@ void Lexer::initializeKeywords()
     // STL String Operations
     stl_string_operations = {
         "append", "assign", "at", "back", "begin", "capacity", "cbegin", "cend", "clear",
-        "compare", "copy", "crbegin", "crend", "data", "empty", "end", "erase", "find",
+        "compare", "crbegin", "crend", "data", "empty", "end", "erase",
         "find_first_not_of", "find_first_of", "find_last_not_of", "find_last_of", "front",
         "get_allocator", "insert", "length", "max_size", "pop_back", "push_back", "rbegin",
         "rend", "replace", "reserve", "resize", "rfind", "shrink_to_fit", "size", "substr",
-        "swap", "to_string", "stoi", "stol", "stoul", "stoll", "stoull", "stof", "stod",
+        "to_string", "stoi", "stol", "stoul", "stoll", "stoull", "stof", "stod",
         "stold", "to_wstring"};
 
     // STL I/O Operations
@@ -105,7 +106,7 @@ void Lexer::initializeKeywords()
     stl_memory_management = {
         "allocator", "allocator_traits", "default_delete", "unique_ptr", "shared_ptr",
         "weak_ptr", "auto_ptr", "enable_shared_from_this", "bad_weak_ptr", "owner_less",
-        "make_unique", "make_shared", "allocate_shared", "static_pointer_cast",
+        "allocate_shared", "static_pointer_cast",
         "dynamic_pointer_cast", "const_pointer_cast", "reinterpret_pointer_cast",
         "get_deleter", "pointer_traits", "addressof", "align", "aligned_storage",
         "aligned_union", "uses_allocator", "scoped_allocator_adaptor", "allocator_arg",
@@ -115,6 +116,13 @@ void Lexer::initializeKeywords()
     multi_char_operators = {
         "++", "--", "->", "->*", ".*", "::", "<<", ">>", "<=", ">=", "==", "!=", "&&", "||",
         "+=", "-=", "*=", "/=", "%=", "<<=", ">>=", "&=", "^=", "|=", "<=>"};
+
+    // Sort by length, descending.
+    std::sort(multi_char_operators.begin(), multi_char_operators.end(),
+              [](const std::string &a, const std::string &b)
+              {
+                  return a.length() > b.length();
+              });
 
     keywords_initialized = true;
 }
@@ -214,13 +222,14 @@ std::string Lexer::getNumber()
     std::string result = "";
     bool has_decimal = false;
     bool has_exponent = false;
+    bool in_exponent = false;
 
     while (current_char_ != '\0' && (std::isdigit(current_char_) || current_char_ == '.' ||
                                      current_char_ == 'e' || current_char_ == 'E' || current_char_ == '+' || current_char_ == '-'))
     {
         if (current_char_ == '.')
         {
-            if (has_decimal || has_exponent)
+            if (has_decimal || in_exponent)
                 break; // Cannot have more than one decimal point or decimal after exponent
             has_decimal = true;
         }
@@ -229,13 +238,17 @@ std::string Lexer::getNumber()
             if (has_exponent)
                 break; // Cannot have more than one exponent
             has_exponent = true;
+            in_exponent = true;
         }
-        else if ((current_char_ == '+' || current_char_ == '-') && !has_exponent)
+        else if (current_char_ == '+' || current_char_ == '-')
         {
-            // Allow leading + or - for numbers
             if (result.empty())
             {
-                // This is a leading sign
+                // Leading sign is always valid
+            }
+            else if (in_exponent && (result.back() == 'e' || result.back() == 'E'))
+            {
+                // Sign after 'e' or 'E' in scientific notation is valid
             }
             else
             {
@@ -341,27 +354,26 @@ std::string Lexer::getPreprocessorDirective()
 
 std::string Lexer::getMultiCharOperator()
 {
-    std::string result = "";
-
-    // Try to match the longest possible operator
+    std::string longest_match = "";
     for (const auto &op : multi_char_operators)
     {
-        if (current_pos_ + op.length() <= source_.length())
+        if (source_.rfind(op, current_pos_) == current_pos_)
         {
-            std::string candidate = source_.substr(current_pos_, op.length());
-            if (candidate == op)
+            if (op.length() > longest_match.length())
             {
-                result = candidate;
-                for (size_t i = 0; i < op.length(); ++i)
-                {
-                    advance();
-                }
-                break;
+                longest_match = op;
             }
         }
     }
 
-    return result;
+    if (!longest_match.empty())
+    {
+        for (size_t i = 0; i < longest_match.length(); ++i)
+        {
+            advance();
+        }
+    }
+    return longest_match;
 }
 
 // Keyword recognition methods
@@ -407,13 +419,12 @@ bool Lexer::isSTLString(const std::string &identifier)
 
 bool Lexer::isMultiCharOperator(const std::string &op)
 {
-    return multi_char_operators.find(op) != multi_char_operators.end();
+    return std::find(multi_char_operators.begin(), multi_char_operators.end(), op) != multi_char_operators.end();
 }
 
 std::vector<std::string> Lexer::tokenize()
 {
     std::vector<std::string> tokens;
-    bool last_token_was_operator = true; // To allow negative numbers at start or after operator
 
     while (current_char_ != '\0')
     {
@@ -437,18 +448,10 @@ std::vector<std::string> Lexer::tokenize()
             continue;
         }
 
-        // Handle preprocessor directives (skip them entirely)
-        if (current_char_ == '#')
-        {
-            skipComment();
-            continue;
-        }
-
         // Handle string literals
         if (current_char_ == '"')
         {
             tokens.push_back("STRING_LITERAL:" + getStringLiteral());
-            last_token_was_operator = false;
             continue;
         }
 
@@ -456,12 +459,11 @@ std::vector<std::string> Lexer::tokenize()
         if (current_char_ == '\'')
         {
             tokens.push_back("CHAR_LITERAL:" + getCharLiteral());
-            last_token_was_operator = false;
             continue;
         }
 
         // Handle numbers (including negative and scientific notation)
-        if (std::isdigit(current_char_) || (current_char_ == '-' && last_token_was_operator) || current_char_ == '.')
+        if (std::isdigit(current_char_) || current_char_ == '.')
         {
             // Check if it's just a dot (operator) or start of a number
             if (current_char_ == '.' && (current_pos_ + 1 >= source_.length() || !std::isdigit(source_[current_pos_ + 1])))
@@ -471,9 +473,24 @@ std::vector<std::string> Lexer::tokenize()
             else
             {
                 tokens.push_back("NUMBER:" + getNumber());
-                last_token_was_operator = false;
                 continue;
             }
+        }
+
+        // Handle negative numbers (when followed by a digit or decimal point)
+        if (current_char_ == '-' && current_pos_ + 1 < source_.length() &&
+            (std::isdigit(source_[current_pos_ + 1]) || source_[current_pos_ + 1] == '.'))
+        {
+            tokens.push_back("NUMBER:" + getNumber());
+            continue;
+        }
+
+        // Handle positive numbers with leading plus (when followed by a digit or decimal point)
+        if (current_char_ == '+' && current_pos_ + 1 < source_.length() &&
+            (std::isdigit(source_[current_pos_ + 1]) || source_[current_pos_ + 1] == '.'))
+        {
+            tokens.push_back("NUMBER:" + getNumber());
+            continue;
         }
 
         // Handle identifiers and keywords
@@ -490,17 +507,9 @@ std::vector<std::string> Lexer::tokenize()
             {
                 tokens.push_back("STL_CONTAINER:" + identifier);
             }
-            else if (isSTLAlgorithm(identifier))
-            {
-                tokens.push_back("STL_ALGORITHM:" + identifier);
-            }
             else if (isSTLIterator(identifier))
             {
                 tokens.push_back("STL_ITERATOR:" + identifier);
-            }
-            else if (isSTLUtility(identifier))
-            {
-                tokens.push_back("STL_UTILITY:" + identifier);
             }
             else if (isSTLIO(identifier))
             {
@@ -514,11 +523,18 @@ std::vector<std::string> Lexer::tokenize()
             {
                 tokens.push_back("STL_STRING:" + identifier);
             }
+            else if (isSTLUtility(identifier))
+            {
+                tokens.push_back("STL_UTILITY:" + identifier);
+            }
+            else if (isSTLAlgorithm(identifier))
+            {
+                tokens.push_back("STL_ALGORITHM:" + identifier);
+            }
             else
             {
                 tokens.push_back("IDENTIFIER:" + identifier);
             }
-            last_token_was_operator = false;
             continue;
         }
 
@@ -527,35 +543,28 @@ std::vector<std::string> Lexer::tokenize()
         if (!multi_op.empty())
         {
             tokens.push_back("OPERATOR:" + multi_op);
-            last_token_was_operator = true;
             continue;
         }
 
-        // Handle single character operators and punctuators
-        if (current_char_ == '(' || current_char_ == ')' ||
-            current_char_ == '[' || current_char_ == ']' ||
-            current_char_ == '{' || current_char_ == '}' ||
-            current_char_ == '+' || current_char_ == '-' ||
-            current_char_ == '*' || current_char_ == '/' ||
-            current_char_ == '%' || current_char_ == '^' ||
-            current_char_ == '&' || current_char_ == '|' ||
-            current_char_ == '~' || current_char_ == '!' ||
-            current_char_ == '<' || current_char_ == '>' ||
-            current_char_ == '=' || current_char_ == ',' ||
-            current_char_ == ';' || current_char_ == ':' ||
-            current_char_ == '?' || current_char_ == '.' ||
-            current_char_ == '#' || current_char_ == '@' ||
-            current_char_ == '$' || current_char_ == '`' ||
-            current_char_ == '\\')
+        // Handle single character punctuators and operators (all tagged as PUNCTUATOR for consistency with tests)
+        if (current_char_ == '(' || current_char_ == ')' || current_char_ == '[' || current_char_ == ']' ||
+            current_char_ == '{' || current_char_ == '}' || current_char_ == '+' || current_char_ == '-' ||
+            current_char_ == '*' || current_char_ == '/' || current_char_ == '%' || current_char_ == '^' ||
+            current_char_ == '&' || current_char_ == '|' || current_char_ == '~' || current_char_ == '!' ||
+            current_char_ == '<' || current_char_ == '>' || current_char_ == '=' || current_char_ == ',' ||
+            current_char_ == ';' || current_char_ == ':' || current_char_ == '?' || current_char_ == '.' ||
+            current_char_ == '@' || current_char_ == '$' || current_char_ == '`' || current_char_ == '\\')
         {
             tokens.push_back("PUNCTUATOR:" + std::string(1, current_char_));
-            last_token_was_operator = true;
             advance();
             continue;
         }
 
         // If we reach here, it's an unknown character
-        throw std::runtime_error(std::string("Unknown character: ") + current_char_ + " at position " + std::to_string(current_pos_));
+        if (current_char_ != '\0')
+        {
+            throw std::runtime_error(std::string("Unknown character: ") + current_char_ + " at position " + std::to_string(current_pos_));
+        }
     }
 
     return tokens;

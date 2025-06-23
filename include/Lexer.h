@@ -28,7 +28,7 @@ private:
     static std::unordered_set<std::string> stl_memory_management;
 
     // Multi-character operators
-    static std::unordered_set<std::string> multi_char_operators;
+    static std::vector<std::string> multi_char_operators;
 
     // Token types
     enum class TokenType

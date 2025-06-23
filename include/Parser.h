@@ -36,12 +36,15 @@ enum Token
     tok_void = -25,
     tok_string = -26,
     tok_auto = -27,
+    tok_const = -28,
+    tok_unsigned = -29,
+    tok_volatile = -31,
 
     // Literals and identifiers
-    tok_identifier = -30,
-    tok_number = -31,
-    tok_string_literal = -32,
-    tok_char_literal = -33,
+    tok_identifier = -35,
+    tok_number = -36,
+    tok_string_literal = -37,
+    tok_char_literal = -38,
 
     // Operators
     tok_assign = -40,        // =
@@ -61,6 +64,8 @@ enum Token
     tok_logical_not = -54,   // !
     tok_arrow = -55,         // ->
     tok_scope = -56,         // ::
+    tok_left_shift = -57,    // <<
+    tok_right_shift = -58,   // >>
 
     // Punctuation
     tok_semicolon = -60,     // ;
@@ -107,6 +112,7 @@ private:
     unique_ptr<ExprAST> ParseIdentifierExpr();
     unique_ptr<ExprAST> ParseUnaryExpr();
     unique_ptr<ExprAST> ParsePrimary();
+    unique_ptr<ExprAST> ParseInitializerList();
     unique_ptr<ExprAST> ParseBinOpRHS(int ExprPrec, unique_ptr<ExprAST> LHS);
     unique_ptr<ExprAST> ParseExpression();
     unique_ptr<ExprAST> ParseAssignmentExpr();
@@ -128,6 +134,8 @@ private:
     unique_ptr<PrototypeAST> ParsePrototype();
     unique_ptr<FunctionAST> ParseFunction();
     unique_ptr<PrototypeAST> ParseExtern();
+    unique_ptr<PrototypeAST> ParseKaleidoscopePrototype();
+    unique_ptr<FunctionAST> ParseKaleidoscopeFunction();
 
     // Utility functions
     bool isType(int token);

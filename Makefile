@@ -20,11 +20,11 @@ TEST_INTEGRATION_TARGET = build/test_integration
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS)
-	@mkdir -p build
+	mkdir -p build
 	$(CXX) $(OBJECTS) -o $(TARGET)
 
 build/obj/%.o: src/%.cpp $(HEADERS)
-	@mkdir -p build/obj
+	mkdir -p build/obj
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Test targets
@@ -43,19 +43,19 @@ test-all: test-unit test-integration test-files
 
 # Individual component tests
 test-lexer: build/obj/test_unit_test_lexer.o $(filter-out build/obj/main.o, $(OBJECTS))
-	@mkdir -p build
+	mkdir -p build
 	$(CXX) build/obj/test_unit_test_lexer.o $(filter-out build/obj/main.o, $(OBJECTS)) -o build/test_lexer
 	@echo "🔍 Testing Lexer..."
 	./build/test_lexer
 
 test-parser: build/obj/test_unit_test_parser.o $(filter-out build/obj/main.o, $(OBJECTS))
-	@mkdir -p build
+	mkdir -p build
 	$(CXX) build/obj/test_unit_test_parser.o $(filter-out build/obj/main.o, $(OBJECTS)) -o build/test_parser
 	@echo "🔍 Testing Parser..."
 	./build/test_parser
 
 test-ast: build/obj/test_unit_test_ast.o $(filter-out build/obj/main.o, $(OBJECTS))
-	@mkdir -p build
+	mkdir -p build
 	$(CXX) build/obj/test_unit_test_ast.o $(filter-out build/obj/main.o, $(OBJECTS)) -o build/test_ast
 	@echo "🔍 Testing AST..."
 	./build/test_ast
@@ -70,21 +70,21 @@ test-files: $(TARGET)
 
 # Unit test executable
 $(TEST_UNIT_TARGET): $(TEST_UNIT_OBJECTS) $(filter-out build/obj/main.o, $(OBJECTS))
-	@mkdir -p build
+	mkdir -p build
 	$(CXX) $(TEST_UNIT_OBJECTS) $(filter-out build/obj/main.o, $(OBJECTS)) -o $(TEST_UNIT_TARGET)
 
 # Integration test executable
 $(TEST_INTEGRATION_TARGET): $(TEST_INTEGRATION_OBJECTS) $(filter-out build/obj/main.o, $(OBJECTS))
-	@mkdir -p build
+	mkdir -p build
 	$(CXX) $(TEST_INTEGRATION_OBJECTS) $(filter-out build/obj/main.o, $(OBJECTS)) -o $(TEST_INTEGRATION_TARGET)
 
 # Compile test files
 build/obj/test_unit_%.o: tests/unit/%.cpp $(HEADERS)
-	@mkdir -p build/obj
+	mkdir -p build/obj
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 build/obj/test_integration_%.o: tests/integration/%.cpp $(HEADERS)
-	@mkdir -p build/obj
+	mkdir -p build/obj
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
