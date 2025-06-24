@@ -685,6 +685,12 @@ unique_ptr<StmtAST> Parser::ParseVarDeclaration()
 // Parse expression statement
 unique_ptr<StmtAST> Parser::ParseExpressionStatement()
 {
+    // Check if this is a print statement
+    if (CurrentToken == tok_identifier && IdentifierStr == "print")
+    {
+        return ParsePrintStatement();
+    }
+
     auto expr = ParseAssignmentExpr();
     if (!expr)
         return nullptr;
@@ -884,6 +890,26 @@ unique_ptr<StmtAST> Parser::ParseContinueStatement()
     return make_unique<ContinueStmtAST>();
 }
 
+// Parse print statement
+unique_ptr<StmtAST> Parser::ParsePrintStatement()
+{
+    getNextToken(); // eat 'print'
+    if (!expectToken(tok_left_paren))
+        return nullptr;
+
+    auto value = ParseExpression();
+    if (!value)
+        return nullptr;
+
+    if (!expectToken(tok_right_paren))
+        return nullptr;
+
+    if (!expectToken(tok_semicolon))
+        return nullptr;
+
+    return make_unique<PrintStmtAST>(std::move(value));
+}
+
 // Parse statement
 unique_ptr<StmtAST> Parser::ParseStatement()
 {
@@ -903,6 +929,10 @@ unique_ptr<StmtAST> Parser::ParseStatement()
         return ParseContinueStatement();
     case tok_left_brace:
         return ParseCompoundStatement();
+    case tok_identifier:
+        if (IdentifierStr == "print")
+            return ParsePrintStatement();
+        return ParseExpressionStatement();
     default:
         if (isType(CurrentToken))
         {

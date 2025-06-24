@@ -331,8 +331,76 @@ void ProgramAST::codegen(CodeGen &gen) const
     }
 
     // Now generate the actual code
+    gen.emit("section .data");
+    gen.emit("    newline db 10");
+    gen.emit("    buffer times 20 db 0");
+    gen.emit("");
     gen.emit("section .text");
     gen.emit("global _main");
+    gen.emit("global _print_int");
+    gen.emit("");
+
+    // Add print_int helper function
+    gen.emit("_print_int:");
+    gen.emit("    push rbp");
+    gen.emit("    mov rbp, rsp");
+    gen.emit("    push rbx");
+    gen.emit("    push rsi");
+    gen.emit("    push rdi");
+    gen.emit("    ");
+    gen.emit("    mov rax, rdi        ; number to print");
+    gen.emit("    mov rcx, 10         ; divisor");
+    gen.emit("    lea rsi, [rel buffer+19] ; point to end of buffer");
+    gen.emit("    mov byte [rsi], 0   ; null terminator");
+    gen.emit("    dec rsi");
+    gen.emit("    mov byte [rsi], 10  ; newline");
+    gen.emit("    dec rsi");
+    gen.emit("    ");
+    gen.emit("    test rax, rax       ; check if negative");
+    gen.emit("    jns .positive");
+    gen.emit("    neg rax             ; make positive");
+    gen.emit("    mov bl, 1           ; remember it was negative");
+    gen.emit("    jmp .convert");
+    gen.emit(".positive:");
+    gen.emit("    xor bl, bl          ; not negative");
+    gen.emit("    ");
+    gen.emit(".convert:");
+    gen.emit("    xor rdx, rdx");
+    gen.emit("    div rcx             ; rax = quotient, rdx = remainder");
+    gen.emit("    add dl, '0'         ; convert to ASCII");
+    gen.emit("    mov [rsi], dl       ; store digit");
+    gen.emit("    dec rsi");
+    gen.emit("    test rax, rax       ; check if done");
+    gen.emit("    jnz .convert");
+    gen.emit("    ");
+    gen.emit("    test bl, bl         ; was it negative?");
+    gen.emit("    jz .print");
+    gen.emit("    mov byte [rsi], '-' ; add minus sign");
+    gen.emit("    dec rsi");
+    gen.emit("    ");
+    gen.emit(".print:");
+    gen.emit("    inc rsi             ; point to first digit");
+    gen.emit("    lea rdx, [rel buffer+19]");
+    gen.emit("    sub rdx, rsi");
+    gen.emit("    inc rdx             ; length including newline");
+    gen.emit("    ");
+#ifdef __linux__
+    gen.emit("    mov rax, 1      ; sys_write");
+    gen.emit("    mov rdi, 1      ; stdout");
+    gen.emit("    syscall");
+#elif __APPLE__
+    gen.emit("    mov rax, 0x2000004  ; sys_write");
+    gen.emit("    mov rdi, 1          ; stdout");
+    gen.emit("    syscall");
+#endif
+    gen.emit("    ");
+    gen.emit("    pop rdi");
+    gen.emit("    pop rsi");
+    gen.emit("    pop rbx");
+    gen.emit("    pop rbp");
+    gen.emit("    ret");
+    gen.emit("");
+
     gen.emit("_main:");
     gen.emit("    push rbp");
     gen.emit("    mov rbp, rsp");
@@ -668,6 +736,18 @@ void ScopeExprAST::codegen(CodeGen &gen) const
     // In a full implementation, we'd handle namespace resolution
     gen.emit("    ; Scope resolution: " + Member);
     Base->codegen(gen);
+}
+
+// Print statement codegen
+void PrintStmtAST::codegen(CodeGen &gen) const
+{
+    // Generate code to evaluate the expression
+    Value->codegen(gen);
+
+    // Call our print function
+    gen.emit("    ; Print integer value");
+    gen.emit("    mov rdi, rax        ; save value");
+    gen.emit("    call _print_int     ; call our print function");
 }
 
 // Generate assembly from AST

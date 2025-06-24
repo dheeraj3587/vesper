@@ -1,0 +1,19 @@
+// Test program with print statements
+int x = 10;
+int y = 20;
+int sum = x + y;
+
+print(x);
+print(y);
+print(sum);
+
+// Test with loop
+int i = 0;
+while (i < 5) {
+    print(i);
+    i = i + 1;
+}
+
+// Test with calculation
+int result = 5 * 6;
+print(result); 

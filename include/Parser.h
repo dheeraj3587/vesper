@@ -129,6 +129,7 @@ private:
     unique_ptr<StmtAST> ParseReturnStatement();
     unique_ptr<StmtAST> ParseBreakStatement();
     unique_ptr<StmtAST> ParseContinueStatement();
+    unique_ptr<StmtAST> ParsePrintStatement();
 
     // Function parsing
     unique_ptr<PrototypeAST> ParsePrototype();

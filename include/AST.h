@@ -384,6 +384,22 @@ public:
     void codegen(CodeGen &gen) const override;
 };
 
+// Print statement
+class PrintStmtAST : public StmtAST
+{
+    unique_ptr<ExprAST> Value;
+
+public:
+    PrintStmtAST(unique_ptr<ExprAST> Value) : Value(std::move(Value)) {}
+    void print() const override
+    {
+        std::cout << "print(";
+        Value->print();
+        std::cout << ")";
+    }
+    void codegen(CodeGen &gen) const override;
+};
+
 // This class represents the "prototype" for a function,
 // which captures its name, and its argument names (thus implicitly the number
 // of arguments the function takes).
