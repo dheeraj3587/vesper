@@ -656,6 +656,34 @@ void ScopeExprAST::codegen(CodeGen &gen) const
     Base->codegen(gen);
 }
 
+// Generate assembly from AST
+void CodeGen::generateAssembly(ProgramAST *root)
+{
+    if (root)
+    {
+        root->codegen(*this);
+    }
+}
+
+// Write assembly to file
+void CodeGen::writeToFile(const std::string &filename) const
+{
+    std::ofstream file(filename);
+    if (!file.is_open())
+    {
+        std::cerr << "Error: Could not open file " << filename << " for writing" << std::endl;
+        return;
+    }
+    file << code.str();
+    file.close();
+}
+
+// Get assembly as string
+std::string CodeGen::getAssembly() const
+{
+    return code.str();
+}
+
 void CodeGen::generateAssembly(const std::string &filename)
 {
     std::ofstream file(filename);
