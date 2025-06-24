@@ -388,9 +388,22 @@ void ProgramAST::codegen(CodeGen &gen) const
         gen.emit(oss.str());
     }
 
-    gen.emit("    mov rax, 60"); // exit syscall
+// Platform-specific exit
+#ifdef __linux__
+    gen.emit("    mov rax, 60"); // exit syscall on Linux
     gen.emit("    xor rdi, rdi");
     gen.emit("    syscall");
+#elif __APPLE__
+    gen.emit("    mov rsp, rbp");
+    gen.emit("    pop rbp");
+    gen.emit("    mov rax, 0x2000001"); // exit syscall on macOS
+    gen.emit("    xor rdi, rdi");
+    gen.emit("    syscall");
+#else
+    gen.emit("    mov rsp, rbp");
+    gen.emit("    pop rbp");
+    gen.emit("    ret");
+#endif
 }
 
 // Boolean expression codegen
