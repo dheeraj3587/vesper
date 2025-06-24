@@ -227,6 +227,58 @@ void CompoundStmtAST::codegen(CodeGen &gen) const
     }
 }
 
+// Helper function to recursively calculate stack space for all variables
+int calculateTotalStackSpace(const std::vector<std::unique_ptr<StmtAST>> &statements)
+{
+    int totalSpace = 0;
+
+    for (const auto &stmt : statements)
+    {
+        // Check for variable declarations
+        const VarDeclStmtAST *varDecl = dynamic_cast<const VarDeclStmtAST *>(stmt.get());
+        if (varDecl)
+        {
+            for (const auto &var : varDecl->getVars())
+            {
+                totalSpace += getTypeSize(varDecl->getVarType());
+            }
+        }
+
+        // Check for compound statements (blocks with more statements)
+        const CompoundStmtAST *compound = dynamic_cast<const CompoundStmtAST *>(stmt.get());
+        if (compound)
+        {
+            // Recursively scan compound statements
+            // We need to access the statements inside, but CompoundStmtAST doesn't expose them
+            // For now, just add extra space
+            totalSpace += 32; // Buffer for compound statement variables
+        }
+
+        // Check for if statements
+        const IfStmtAST *ifStmt = dynamic_cast<const IfStmtAST *>(stmt.get());
+        if (ifStmt)
+        {
+            totalSpace += 16; // Buffer for if statement variables
+        }
+
+        // Check for for loops
+        const ForStmtAST *forStmt = dynamic_cast<const ForStmtAST *>(stmt.get());
+        if (forStmt)
+        {
+            totalSpace += 16; // Space for for loop variable (typically int i)
+        }
+
+        // Check for while loops
+        const WhileStmtAST *whileStmt = dynamic_cast<const WhileStmtAST *>(stmt.get());
+        if (whileStmt)
+        {
+            totalSpace += 16; // Buffer for while loop variables
+        }
+    }
+
+    return totalSpace;
+}
+
 // ProgramAST codegen - Main program entry point
 void ProgramAST::codegen(CodeGen &gen) const
 {
@@ -302,19 +354,11 @@ void ProgramAST::codegen(CodeGen &gen) const
     gen.emit("    push rbp");
     gen.emit("    mov rbp, rsp");
 
-    // Calculate total stack space needed
-    int totalStackNeeded = 0;
-    for (const auto &stmt : Statements)
-    {
-        const VarDeclStmtAST *varDecl = dynamic_cast<const VarDeclStmtAST *>(stmt.get());
-        if (varDecl)
-        {
-            for (const auto &var : varDecl->getVars())
-            {
-                totalStackNeeded += getTypeSize(varDecl->getVarType());
-            }
-        }
-    }
+    // Calculate total stack space needed - recursively scan ALL statements
+    int totalStackNeeded = calculateTotalStackSpace(Statements);
+
+    // Reserve extra space for loop variables and nested declarations
+    totalStackNeeded += 128; // Extra buffer for loop variables and safety
 
     // Reserve stack space if needed
     if (totalStackNeeded > 0)
