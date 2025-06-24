@@ -784,7 +784,7 @@ bool CodeGen::assembleToBinary(const std::string &asmFile, const std::string &ou
     }
 
     // Step 2: Link to executable (macOS specific)
-    std::string linkCmd = "ld -arch x86_64 -macos_version_min 10.14 -e _main -lSystem -o " + outputBinary + " " + objFile;
+    std::string linkCmd = "ld -arch x86_64 -platform_version macos 10.14 10.14 -e _main -lSystem -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -o " + outputBinary + " " + objFile;
     std::cout << "Linking: " << linkCmd << std::endl;
 
     int linkResult = std::system(linkCmd.c_str());
@@ -792,8 +792,8 @@ bool CodeGen::assembleToBinary(const std::string &asmFile, const std::string &ou
     {
         std::cerr << "Error: Linking failed. Trying alternative approach..." << std::endl;
 
-        // Alternative linking approach for macOS
-        std::string altLinkCmd = "ld -arch x86_64 -e _main -static -o " + outputBinary + " " + objFile;
+        // Alternative linking approach for macOS - create static binary
+        std::string altLinkCmd = "ld -static -arch x86_64 -e _main -o " + outputBinary + " " + objFile;
         std::cout << "Trying: " << altLinkCmd << std::endl;
 
         linkResult = std::system(altLinkCmd.c_str());
