@@ -1,0 +1,16 @@
+// Test dynamic type inference
+// Variables should be automatically declared when first assigned
+
+x = 42;        // Should infer int
+y = 3.14;      // Should infer double
+flag = true;   // Should infer bool
+letter = 'A';  // Should infer char
+
+print(x);
+print(y);
+print(flag);
+print(letter);
+
+// Test with complex expression
+z = x + 10;    // Should infer int from expression
+print(z); 

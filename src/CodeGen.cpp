@@ -67,6 +67,48 @@ int getTypeSize(DataType type)
     }
 }
 
+// Helper function to infer type from expression
+DataType inferTypeFromExpression(const ExprAST *expr)
+{
+    // Try to infer type from the expression
+    const NumberExprAST *numberExpr = dynamic_cast<const NumberExprAST *>(expr);
+    if (numberExpr)
+    {
+        double val = numberExpr->getValue();
+        // If it's a whole number, assume int
+        if (val == static_cast<int>(val))
+        {
+            return DataType::INT;
+        }
+        else
+        {
+            return DataType::DOUBLE;
+        }
+    }
+
+    const BoolExprAST *boolExpr = dynamic_cast<const BoolExprAST *>(expr);
+    if (boolExpr)
+    {
+        return DataType::BOOL;
+    }
+
+    const StringExprAST *stringExpr = dynamic_cast<const StringExprAST *>(expr);
+    if (stringExpr)
+    {
+        return DataType::STRING;
+    }
+
+    const CharExprAST *charExpr = dynamic_cast<const CharExprAST *>(expr);
+    if (charExpr)
+    {
+        return DataType::CHAR;
+    }
+
+    // For other expressions (like binary ops, variables), default to int
+    // In a more sophisticated compiler, we'd do type analysis
+    return DataType::INT;
+}
+
 // NumberExprAST codegen
 void NumberExprAST::codegen(CodeGen &gen) const
 {
@@ -156,7 +198,7 @@ void BinaryExprAST::codegen(CodeGen &gen) const
     }
 }
 
-// AssignmentExprAST codegen - Store value to variable
+// AssignmentExprAST codegen - Store value to variable with dynamic type inference
 void AssignmentExprAST::codegen(CodeGen &gen) const
 {
     // Evaluate the right-hand side
@@ -164,18 +206,46 @@ void AssignmentExprAST::codegen(CodeGen &gen) const
 
     // Get the variable from the left-hand side
     VariableExprAST *var = dynamic_cast<VariableExprAST *>(LHS.get());
-    if (var && symbolTable.find(var->getName()) != symbolTable.end())
+    if (var)
     {
-        const VariableInfo &varInfo = symbolTable[var->getName()];
-        std::ostringstream oss;
+        // Check if variable exists in symbol table
+        if (symbolTable.find(var->getName()) != symbolTable.end())
+        {
+            // Variable exists, just store to it
+            const VariableInfo &varInfo = symbolTable[var->getName()];
+            std::ostringstream oss;
+            oss << "    mov dword [rbp-" << varInfo.stackOffset << "], eax";
+            gen.emit(oss.str());
+        }
+        else
+        {
+            // Variable doesn't exist - dynamic type inference!
+            gen.emit("    ; Dynamic type inference for variable: " + var->getName());
 
-        // Store as 32-bit integer
-        oss << "    mov dword [rbp-" << varInfo.stackOffset << "], eax";
-        gen.emit(oss.str());
+            // Infer type from RHS expression
+            DataType inferredType = inferTypeFromExpression(RHS.get());
+
+            // Create new variable in symbol table
+            int typeSize = getTypeSize(inferredType);
+            stackOffset += typeSize;
+
+            VariableInfo varInfo;
+            varInfo.stackOffset = stackOffset;
+            varInfo.type = inferredType;
+            varInfo.size = typeSize;
+            symbolTable[var->getName()] = varInfo;
+
+            // Store the value (RHS already evaluated and in rax)
+            std::ostringstream oss;
+            oss << "    mov dword [rbp-" << stackOffset << "], eax";
+            gen.emit(oss.str());
+
+            gen.emit("    ; Created variable '" + var->getName() + "' with inferred type");
+        }
     }
     else
     {
-        gen.emit("    ; ERROR: Assignment to unknown variable");
+        gen.emit("    ; ERROR: Invalid left-hand side in assignment");
     }
 }
 

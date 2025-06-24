@@ -88,7 +88,7 @@ git clone https://github.com/dheeraj3587/vesper.git
 cd vesper
 
 # Build the compiler
-make clean && make
+mmake clean && make
 
 # Test with a simple program
 ./run_vesper.sh examples/hello_world.vsp
