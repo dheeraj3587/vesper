@@ -1,3 +1,0 @@
-// Simple print test
-int x = 42;
-print(x); 

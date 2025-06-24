@@ -68,8 +68,13 @@ make examples
 
 ### Using the Compiler
 
+The easiest way to compile and run a Vesper program:
+
 ```bash
-# Compile a Vesper program
+# Using the convenient run script
+./run_vesper.sh examples/hello_world.vsp
+
+# Or manually compile
 ./build/vesper program.vsp
 
 # This generates assembly output in output.asm

@@ -1,0 +1,6 @@
+// Simple print test
+int x = 42;
+if (x < 100)
+    print(x);
+else 
+    print(999); 

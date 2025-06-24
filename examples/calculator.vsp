@@ -1,0 +1,25 @@
+// Basic Calculator in Vesper
+// Demonstrates arithmetic operations
+
+int a = 20;
+int b = 10;
+
+// Addition
+int sum = a + b;
+print(sum);  // 30
+
+// Subtraction
+int diff = a - b;
+print(diff);  // 10
+
+// Multiplication
+int prod = a * b;
+print(prod);  // 200
+
+// Division
+int quot = a / b;
+print(quot);  // 2
+
+// Complex expression
+int result = (a + b) * 2 - 10;
+print(result);  // 50 

@@ -1,0 +1,4 @@
+// Simple Hello World in Vesper
+// Prints the number 42
+
+print(42); 
