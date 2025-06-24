@@ -20,6 +20,11 @@ fi
 echo "🔨 Compiling $INPUT_FILE..."
 ./build/vesper "$INPUT_FILE"
 
+# Check for either output.asm or program.asm (compiler might use either)
+if [ -f "program.asm" ]; then
+    mv program.asm output.asm
+fi
+
 if [ ! -f "output.asm" ]; then
     echo "❌ Compilation failed!"
     exit 1
@@ -32,7 +37,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     nasm -f macho64 output.asm -o output.o
     
     echo "🔗 Linking..."
-    ld -o "$BASE_NAME" output.o -lSystem -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib
+    ld -arch x86_64 -platform_version macos 10.14 10.14 -e _main -lSystem -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -o "$BASE_NAME" output.o
 else
     # Linux
     echo "🔧 Assembling for Linux..."

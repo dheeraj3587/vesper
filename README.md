@@ -1,278 +1,305 @@
-# Vesper Programming Language Compiler
+# Vesper Programming Language Compiler 🚀
 
-A modern, feature-complete compiler for the Vesper programming language, implementing C-style syntax with comprehensive control flow support.
+A modern, feature-complete compiler for the **Vesper** programming language, implementing C-style syntax with comprehensive control flow support and code generation for x86-64 architecture.
 
-## Features
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
+[![Language](https://img.shields.io/badge/language-C++-blue.svg)]()
+[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey.svg)]()
 
-✅ **Complete Language Support:**
+## ✨ Features
 
-- Variable declarations with type inference (`int x = 10;`)
-- All arithmetic operations (`+`, `-`, `*`, `/`)
-- Comparison operators (`==`, `!=`, `<`, `>`, `<=`, `>=`)
-- Control flow statements (`if`, `while`, `for`)
-- Compound statements and nested structures
-- Assignment expressions and complex expressions
+### 🎯 **Complete Language Support**
 
-✅ **Professional Code Generation:**
+- ✅ Variable declarations with type inference (`int x = 10;`)
+- ✅ All arithmetic operations (`+`, `-`, `*`, `/`)
+- ✅ Comparison operators (`==`, `!=`, `<`, `>`, `<=`, `>=`)
+- ✅ Control flow statements (`if`, `else`, `while`, `for`)
+- ✅ Compound statements and nested structures
+- ✅ Assignment expressions and complex expressions
+- ✅ Print function for output (`print(value);`)
 
-- x86-64 assembly output
-- Proper stack management
-- Type-aware variable storage
-- Optimized register usage
-- Label generation for control flow
+### 🔧 **Professional Code Generation**
 
-✅ **Robust Architecture:**
+- ✅ x86-64 assembly output
+- ✅ Proper stack management
+- ✅ Type-aware variable storage
+- ✅ Optimized register usage
+- ✅ Label generation for control flow
+- ✅ Cross-platform support (macOS & Linux)
 
-- Modular lexer, parser, and code generator
-- Comprehensive AST representation
-- Extensive test suite
-- Clean separation of concerns
+### 🏗️ **Robust Architecture**
 
-## Project Structure
+- ✅ Modular lexer, parser, and code generator
+- ✅ Comprehensive AST representation
+- ✅ Extensive test suite with examples
+- ✅ Clean separation of concerns
+- ✅ Professional project structure
 
-```
-vesper/
-├── src/                    # Source code
-│   ├── main.cpp           # Main compiler driver
-│   ├── Lexer.cpp          # Tokenization
-│   ├── Parser.cpp         # Syntax analysis
-│   └── CodeGen.cpp        # Code generation
-├── include/               # Header files
-│   ├── AST.h              # Abstract syntax tree
-│   ├── Lexer.h            # Lexer interface
-│   ├── Parser.h           # Parser interface
-│   └── CodeGen.h          # Code generator interface
-├── tests/                 # Test suite
-│   ├── examples/          # Example programs
-│   ├── unit/              # Unit tests
-│   └── integration/       # Integration tests
-├── docs/                  # Documentation
-├── build/                 # Build artifacts (generated)
-└── README.md
-```
+## 🚀 Quick Start
 
-## Quick Start
+### Prerequisites
 
-### Building the Compiler
+- **C++ Compiler**: GCC or Clang with C++17 support
+- **NASM**: Netwide Assembler for assembly compilation
+- **Make**: Build system
+- **Operating System**: macOS or Linux
+
+### Installation
 
 ```bash
-# Build the main compiler
+# Clone the repository
+git clone https://github.com/your-username/vesper.git
+cd vesper
+
+# Build the compiler
 make
 
-# Build and run all tests
-make test
-
-# Build and test with examples
-make examples
+# Test with examples
+./run_vesper.sh examples/hello_world.vsp
 ```
 
-### Using the Compiler
+### Hello World
 
-The easiest way to compile and run a Vesper program:
+Create a file `hello.vsp`:
+
+```c
+// Hello World in Vesper
+print(42);
+```
+
+Compile and run:
 
 ```bash
-# Using the convenient run script
-./run_vesper.sh examples/hello_world.vsp
-
-# Or manually compile
-./build/vesper program.vsp
-
-# This generates assembly output in output.asm
+./run_vesper.sh hello.vsp
 ```
 
-## Example Programs
+Output:
 
-### Basic Variables and Arithmetic
-
-```c
-// File: tests/examples/variables_and_expressions.vsp
-int x = 5;
-int y = 10;
-int result = x + y;
-result = result * 2;
+```
+42
 ```
 
-### Control Flow
+## 📚 Examples
 
-```c
-// File: tests/examples/basic_control_flow.vsp
-int x = 10;
+The `examples/` directory contains comprehensive example programs:
 
-if (x > 5) {
-    x = x * 2;
-}
+### 🔥 **Featured Examples**
 
-while (x > 0) {
-    x = x - 1;
-}
+| Example                                         | Description           | Features Demonstrated             |
+| ----------------------------------------------- | --------------------- | --------------------------------- |
+| [`hello_world.vsp`](examples/hello_world.vsp)   | Simple output         | Basic print functionality         |
+| [`calculator.vsp`](examples/calculator.vsp)     | Arithmetic operations | Variables, math, expressions      |
+| [`fibonacci.vsp`](examples/fibonacci.vsp)       | Fibonacci sequence    | Loops, variables, calculations    |
+| [`control_flow.vsp`](examples/control_flow.vsp) | Control structures    | If/else, while, for, nested loops |
 
-for (int i = 0; i < 5; i = i + 1) {
-    x = x + i;
-}
+### Running Examples
+
+```bash
+# Run any example
+./run_vesper.sh examples/fibonacci.vsp
+
+# Expected output: 0 1 1 2 3 5 8 13 21 34
 ```
 
-### Nested Structures
-
-```c
-// File: tests/examples/nested_loops.vsp
-for (int row = 0; row < 3; row = row + 1) {
-    for (int col = 0; col < 3; col = col + 1) {
-        int value = row * col;
-        if (value > 2) {
-            value = value * 2;
-        }
-    }
-}
-```
-
-## Language Reference
+## 🛠️ Language Reference
 
 ### Data Types
 
-- `int` - 32-bit signed integers
-- `float` - 32-bit floating point
-- `double` - 64-bit floating point
-- `char` - 8-bit characters
-- `bool` - Boolean values
+```c
+int x = 10;        // Integer variables
+```
 
 ### Operators
 
-- **Arithmetic:** `+`, `-`, `*`, `/`
-- **Comparison:** `==`, `!=`, `<`, `>`, `<=`, `>=`
-- **Assignment:** `=`
-- **Logical:** `!` (unary not)
+```c
+// Arithmetic
+int sum = a + b;   // Addition
+int diff = a - b;  // Subtraction
+int prod = a * b;  // Multiplication
+int quot = a / b;  // Division
+
+// Comparison
+if (x > 5) { ... }     // Greater than
+if (x < 10) { ... }    // Less than
+if (x == 5) { ... }    // Equal to
+if (x != 0) { ... }    // Not equal to
+```
 
 ### Control Flow
 
-- **Conditional:** `if (condition) { ... }`, `if (condition) { ... } else { ... }`
-- **Loops:** `while (condition) { ... }`, `for (init; condition; update) { ... }`
+```c
+// If statements
+if (condition) {
+    // code
+} else {
+    // code
+}
 
-### Variables
+// While loops
+while (condition) {
+    // code
+}
+
+// For loops
+for (int i = 0; i < 10; i = i + 1) {
+    // code
+}
+```
+
+### Output
 
 ```c
-int x;                    // Declaration
-int y = 10;              // Declaration with initialization
-x = 5;                   // Assignment
-int result = x + y;      // Expression assignment
+print(42);         // Print integer
+print(x + y);      // Print expression result
 ```
 
-## Development
+## 🧪 Testing
 
-### Running Tests
+### Run All Tests
 
 ```bash
-# Run all tests
+# Complete test suite
 make test
 
-# Run specific test categories
-make test-unit          # Unit tests only
-make test-integration   # Integration tests only
-make examples          # Test with example files
+# Quick project validation
+./scripts/testing/quick_test.sh
 
-# Run individual component tests
-make test-lexer        # Test tokenization
-make test-parser       # Test parsing
-make test-ast          # Test AST generation
+# Comprehensive compiler tests
+./scripts/testing/test_compiler.sh
 ```
 
-### Building and Testing
+### Create Your Own Tests
+
+```c
+// test_program.vsp
+int a = 5;
+int b = 10;
+
+print(a + b);  // Should output: 15
+
+if (a < b) {
+    print(1);  // Should output: 1
+}
+```
+
+Run your test:
+
+```bash
+./run_vesper.sh test_program.vsp
+```
+
+## 📁 Project Structure
+
+```
+vesper/
+├── README.md              # This file
+├── Makefile              # Build configuration
+├── run_vesper.sh         # Convenient compilation script
+│
+├── src/                  # Source code
+│   ├── main.cpp         # Compiler entry point
+│   ├── Lexer.cpp        # Tokenization
+│   ├── Parser.cpp       # Syntax analysis
+│   └── CodeGen.cpp      # Code generation
+│
+├── include/              # Header files
+│   ├── AST.h            # Abstract Syntax Tree
+│   ├── Lexer.h          # Lexer interface
+│   ├── Parser.h         # Parser interface
+│   └── CodeGen.h        # Code generator interface
+│
+├── examples/             # Example programs
+│   ├── hello_world.vsp  # Simple hello world
+│   ├── calculator.vsp   # Arithmetic demo
+│   ├── fibonacci.vsp    # Fibonacci sequence
+│   └── control_flow.vsp # Control structures
+│
+├── tests/                # Test suite
+│   ├── unit/            # Unit tests
+│   ├── integration/     # Integration tests
+│   └── examples/        # Test examples
+│
+├── scripts/              # Utility scripts
+│   ├── setup/           # Setup scripts
+│   └── testing/         # Testing scripts
+│
+└── docs/                 # Documentation
+```
+
+## 🔧 Development
+
+### Building from Source
 
 ```bash
 # Clean build
 make clean
 make
 
-# Full test suite
-make test-all
+# Debug build
+make debug
 
-# Test legacy compatibility
-make test-legacy
+# Release build
+make release
 ```
 
-### Code Formatting
+### Code Architecture
 
-```bash
-# Format all source code
-make format
-```
+#### Compilation Pipeline
 
-## Architecture
+1. **Lexical Analysis** → Tokenize source code
+2. **Syntax Analysis** → Build Abstract Syntax Tree (AST)
+3. **Code Generation** → Generate x86-64 assembly
+4. **Assembly & Linking** → Create executable binary
 
-### Compilation Pipeline
+#### Key Components
 
-1. **Lexical Analysis** (`Lexer.cpp`)
+- **Lexer**: Converts source code into tokens
+- **Parser**: Builds AST from tokens using recursive descent
+- **CodeGen**: Traverses AST to generate assembly code
+- **AST**: Comprehensive node types for all language constructs
 
-   - Tokenizes source code
-   - Handles keywords, operators, literals
-   - Supports C-style and STL tokens
+## 🌐 Platform Support
 
-2. **Syntax Analysis** (`Parser.cpp`)
+| Platform    | Status             | Notes                       |
+| ----------- | ------------------ | --------------------------- |
+| **macOS**   | ✅ Fully Supported | Native development platform |
+| **Linux**   | ✅ Fully Supported | Tested on Ubuntu/Debian     |
+| **Windows** | 🔄 In Progress     | WSL recommended             |
 
-   - Builds Abstract Syntax Tree (AST)
-   - Implements recursive descent parser
-   - Handles operator precedence
+## 🤝 Contributing
 
-3. **Code Generation** (`CodeGen.cpp`)
-   - Traverses AST to generate assembly
-   - Manages symbol tables and stack frames
-   - Produces x86-64 assembly output
+We welcome contributions! Here's how to get started:
 
-### Key Components
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request
 
-- **AST Nodes** (`AST.h`) - Complete representation of language constructs
-- **Symbol Management** - Type-aware variable tracking
-- **Label Generation** - Unique labels for control flow
-- **Stack Management** - Proper stack frame handling
+### Development Guidelines
 
-## Testing
+- Follow existing code style
+- Add tests for new features
+- Update documentation
+- Ensure all tests pass
 
-The project includes comprehensive testing:
+## 📄 License
 
-- **Unit Tests** - Test individual components
-- **Integration Tests** - Test complete compilation pipeline
-- **Example Programs** - Real-world usage scenarios
-- **Legacy Compatibility** - Support for older syntax
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Generated Assembly
+## 🙏 Acknowledgments
 
-The compiler produces efficient x86-64 assembly:
+- Built with modern C++17 features
+- Inspired by traditional compiler design principles
+- Thanks to the open-source community for tools and inspiration
 
-```asm
-section .text
-global _main
-_main:
-    push rbp
-    mov rbp, rsp
-    sub rsp, 16
-    mov rax, 10
-    mov [rbp-8], eax
-    # ... rest of program
-```
+## 📞 Support
 
-Features:
+- 📖 **Documentation**: Check the [`docs/`](docs/) directory
+- 🐛 **Issues**: Report bugs via GitHub Issues
+- 💬 **Discussions**: Use GitHub Discussions for questions
+- 📧 **Contact**: [Your email/contact info]
 
-- Proper function prologue/epilogue
-- Stack-based variable storage
-- Type-aware load/store operations
-- Conditional jumps for control flow
-- Loop constructs with labels
+---
 
-## Contributing
-
-1. Follow the existing code style
-2. Add tests for new features
-3. Update documentation
-4. Ensure all tests pass
-
-## License
-
-[Add your license information here]
-
-## Acknowledgments
-
-Built as a comprehensive compiler implementation demonstrating:
-
-- Lexical and syntax analysis
-- Abstract syntax tree construction
-- Code generation for x86-64
-- Professional software development practices
+**Vesper** - _A modern programming language for the next generation_ 🚀

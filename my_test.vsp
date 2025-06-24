@@ -1,0 +1,16 @@
+// My test program
+int x = 10;
+int y = 20;
+
+// Test arithmetic
+print(x + y);  // Should print 30
+
+// Test comparison
+if (x < y) {
+    print(1);  // Should print 1
+}
+
+// Test loop
+for (int i = 0; i < 3; i = i + 1) {
+    print(i);  // Should print 0, 1, 2
+} 
