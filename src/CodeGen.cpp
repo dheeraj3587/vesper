@@ -43,7 +43,7 @@ CodeGen::CodeGen()
 // Helper to emit assembly
 void CodeGen::emit(const std::string &line)
 {
-    assemblyLines.push_back(line);
+    code << line << std::endl;
 }
 
 // Helper to get size of data type
@@ -656,33 +656,67 @@ void ScopeExprAST::codegen(CodeGen &gen) const
     Base->codegen(gen);
 }
 
-void CodeGen::generateAssembly(ProgramAST *root)
+void CodeGen::generateAssembly(const std::string &filename)
 {
-    if (root)
+    std::ofstream file(filename);
+    if (!file.is_open())
     {
-        root->codegen(*this);
+        std::cerr << "Error: Could not open file " << filename << " for writing" << std::endl;
+        return;
     }
-    else
-    {
-        emit("; ERROR: Root is not a ProgramAST");
-    }
+    file << code.str();
+    file.close();
+    std::cout << "Assembly code written to " << filename << std::endl;
 }
 
-void CodeGen::writeToFile(const std::string &filename) const
+bool CodeGen::assembleToBinary(const std::string &asmFile, const std::string &outputBinary)
 {
-    std::ofstream out(filename);
-    for (const auto &line : assemblyLines)
+    std::string objFile = outputBinary + ".o";
+
+    // Step 1: Assemble to object file
+    std::string nasmCmd = "nasm -f macho64 " + asmFile + " -o " + objFile;
+    std::cout << "Assembling: " << nasmCmd << std::endl;
+
+    int nasmResult = std::system(nasmCmd.c_str());
+    if (nasmResult != 0)
     {
-        out << line << "\n";
+        std::cerr << "Error: Assembly failed with nasm" << std::endl;
+        return false;
     }
+
+    // Step 2: Link to executable (macOS specific)
+    std::string linkCmd = "ld -arch x86_64 -macos_version_min 10.14 -e _main -o " + outputBinary + " " + objFile;
+    std::cout << "Linking: " << linkCmd << std::endl;
+
+    int linkResult = std::system(linkCmd.c_str());
+    if (linkResult != 0)
+    {
+        std::cerr << "Error: Linking failed. Trying alternative approach..." << std::endl;
+
+        // Alternative linking approach for macOS
+        std::string altLinkCmd = "gcc -arch x86_64 -o " + outputBinary + " " + objFile + " -nostdlib -e _main";
+        std::cout << "Trying: " << altLinkCmd << std::endl;
+
+        linkResult = std::system(altLinkCmd.c_str());
+        if (linkResult != 0)
+        {
+            std::cerr << "Error: Both linking approaches failed" << std::endl;
+            return false;
+        }
+    }
+
+    // Clean up object file
+    std::remove(objFile.c_str());
+
+    std::cout << "✅ Binary generated successfully: " << outputBinary << std::endl;
+    return true;
 }
 
-std::string CodeGen::getAssembly() const
+bool CodeGen::generateBinary(const std::string &asmFile, const std::string &outputBinary)
 {
-    std::string result;
-    for (const auto &line : assemblyLines)
-    {
-        result += line + "\n";
-    }
-    return result;
+    // Generate assembly first
+    generateAssembly(asmFile);
+
+    // Then convert to binary
+    return assembleToBinary(asmFile, outputBinary);
 }
