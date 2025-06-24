@@ -20,42 +20,34 @@ fi
 echo "🔨 Compiling $INPUT_FILE..."
 ./build/vesper "$INPUT_FILE"
 
-# Check for either output.asm or program.asm (compiler might use either)
-if [ -f "program.asm" ]; then
-    mv program.asm output.asm
-fi
-
-if [ ! -f "output.asm" ]; then
-    echo "❌ Compilation failed!"
+# Check for assembly file (compiler generates program.asm by default)
+ASM_FILE="program.asm"
+if [ ! -f "$ASM_FILE" ]; then
+    echo "❌ Compilation failed - no assembly file generated!"
     exit 1
 fi
 
-# Detect OS and assemble/link accordingly
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    # macOS
-    echo "🔧 Assembling for macOS..."
-    nasm -f macho64 output.asm -o output.o
-    
-    echo "🔗 Linking..."
-    ld -arch x86_64 -platform_version macos 10.14 10.14 -e _main -lSystem -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -o "$BASE_NAME" output.o
-else
-    # Linux
-    echo "🔧 Assembling for Linux..."
-    nasm -f elf64 output.asm -o output.o
-    
-    echo "🔗 Linking..."
-    ld -o "$BASE_NAME" output.o -lc -dynamic-linker /lib64/ld-linux-x86-64.so.2 -e _start
+# Assemble and link for Linux (ELF64)
+echo "🔧 Assembling for Linux..."
+nasm -f elf64 "$ASM_FILE" -o output.o
+
+if [ $? -ne 0 ]; then
+    echo "❌ Assembly failed!"
+    rm -f "$ASM_FILE" output.o
+    exit 1
 fi
 
-# Check if linking succeeded
-if [ ! -f "$BASE_NAME" ]; then
+echo "🔗 Linking..."
+ld -o "$BASE_NAME" output.o -e _start
+
+if [ $? -ne 0 ]; then
     echo "❌ Linking failed!"
-    rm -f output.asm output.o
+    rm -f "$ASM_FILE" output.o
     exit 1
 fi
 
 # Clean up intermediate files
-rm -f output.asm output.o
+rm -f "$ASM_FILE" output.o
 
 echo "✅ Successfully compiled to $BASE_NAME"
 echo "🚀 Running program..."
